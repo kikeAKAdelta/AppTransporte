@@ -10,8 +10,10 @@
     "lint": "eslint ."
   },
   "dependencies": {
+    "@react-native-picker/picker": "^2.6.1",
     "react": "18.1.0",
     "react-native": "0.70.15",
+    "react-native-picker-select": "^9.0.1",
     "react-native-sqlite-storage": "^6.0.1"
   },
   "devDependencies": {

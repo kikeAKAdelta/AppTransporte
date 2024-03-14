@@ -1,6 +1,8 @@
 import React, { useEffect, useCallback } from 'react';
 import type {Node} from 'react';
-import { connectToDatabase, createTables } from './database/AppTransporteDB.js'
+import { connectToDatabase, createTables } from './database/AppTransporteDB.js';
+import { DropDownTransportista } from './components/dropdown/dropdown.js';
+
 import {
   SafeAreaView,
   ScrollView,
@@ -67,6 +69,7 @@ const App: () => Node = () => {
   return (
     <View>
       <Text>App de Transporte</Text>
+      <DropDownTransportista />
     </View>
   );
 };
