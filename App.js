@@ -1,6 +1,7 @@
-import React, { useEffect, useCallback } from 'react';
+import React, { useEffect, useCallback, useState } from 'react';
 import type {Node} from 'react';
 import { connectToDatabase, createTables } from './database/AppTransporteDB.js';
+import { loadTransportista, getAllTransportistas } from './database/Transportista.js';
 import { DropDownTransportista } from './components/dropdown/dropdown.js';
 
 import {
@@ -50,13 +51,20 @@ const Section = ({children, title}): Node => {
   );
 };
 
+
 const App: () => Node = () => {
+
+  
+const [ listTransportista, setListTransportista] = useState([]);
 
   /**Conexion a la BD y Cargamos nuestra tablas */
   const loadData = useCallback(async () =>{
     try{
       const db = await connectToDatabase();
       await createTables(db);
+      await loadTransportista(db);
+      const listResult = await getAllTransportistas(db);
+      console.log(listResult);
     }catch(error){
       console.error(error);
     }
@@ -69,7 +77,7 @@ const App: () => Node = () => {
   return (
     <View>
       <Text>App de Transporte</Text>
-      <DropDownTransportista />
+      <DropDownTransportista data={listTransportista} />
     </View>
   );
 };
