@@ -16,14 +16,27 @@ export const connectToDatabase = async () =>{
 export const createTables = async(db) =>{
 
     const createTableTransportista = `
-        CREATE TABLE IF NOT EXISTS TRANSPORTISTA(
-            ID_TRANSPORTISTA INTEGER PRIMARY KEY AUTOINCREMENT,
-            NOMBRE TEXT(150),
-            DUI TEXT(10),
-            PLACA TEXT(10),
-            ID_RUTA INTEGER
-        )
+            CREATE TABLE IF NOT EXISTS TRANSPORTISTA(
+                ID_TRANSPORTISTA INTEGER PRIMARY KEY AUTOINCREMENT,
+                NOMBRE VARCHAR(150),
+                DUI VARCHAR(10),
+                PLACA VARCHAR(10),
+                ID_RUTA INTEGER
+            )
     `;
+
+    db.transaction(txn =>{
+        txn.executeSql(
+            createTableTransportista,
+            [],
+            (sqlTxn, res) =>{
+                console.log('Tabla Transportista creada correctamente!');
+            },
+            error =>{
+                console.log("Error creando tabla transportisa " + error.message);
+            }
+        );
+    });
 
     const createTableRuta = `
         CREATE TABLE IF NOT EXISTS RUTA(
@@ -33,25 +46,41 @@ export const createTables = async(db) =>{
         )
     `;
 
-    const createTableRegistroEmpleado = `
+    db.transaction(txn =>{
+        txn.executeSql(
+            createTableRuta,
+            [],
+            (sqlTxn, res) =>{
+                console.log('Tabla Ruta creada correctamente!');
+            },
+            error =>{
+                console.log("Error creando tabla Ruta " + error.message);
+            }
+        );
+    });
+
+    const createTableTransporteDetalle = `
         CREATE TABLE IF NOT EXISTS TRANSPORTE_DETALLE(
             ID_TRANSPORT INTEGER PRIMARY KEY AUTOINCREMENT,
             ID_TRANSPORTISTA TEXT(150),
-            NOMBRE_TRANSPORTISTA TEXT(150)
+            NOMBRE_TRANSPORTISTA TEXT(150),
             PLACA TEXT(150),
             CODIGO_EMPLEADO TEXT(6),
             FECHA_REGISTRO
         )
     `;
 
-    try{
-        await db.executeSql(createTableRuta);
-        await db.executeSql(createTableTransportista);
-        await db.executeSql(createTableRegistroEmpleado);
-        console.log('Tablas creadas correctamente!');
-    }catch(error){
-        console.log(error);
-        throw Error(`Error en la creacion de tablas del Sistema!!`);
-    }
+    db.transaction(txn =>{
+        txn.executeSql(
+            createTableTransporteDetalle,
+            [],
+            (sqlTxn, res) =>{
+                console.log('Tabla Transporte Detalle creada correctamente!');
+            },
+            error =>{
+                console.log("Error creando tabla Transporte Detalle " + error.message);
+            }
+        );
+    });
 
 }

@@ -1,3 +1,4 @@
+import React, { useEffect, useCallback, useState } from 'react';
 import { openDatabase, SQLiteDatabase} from "react-native-sqlite-storage";
 
 const dataTransportista = [
@@ -15,41 +16,49 @@ export const loadTransportista = async (db) =>{
             VALUES (?, ?, ?, ?, ?)
         `
 
-        const arrResult = Object.values(item);
-
-        console.log(arrResult);
-
-        try {
-            const result = db.executeSql(insertQuery, arrResult)
-            console.log('Registro agregado '  + result);
-        } catch (error) {
-            console.error(error)
-            throw Error("Failed to add contact")
-        }
+        db.transaction(txn =>{
+          txn.executeSql(
+              insertQuery,
+              item,
+              (sqlTxn, res) =>{
+                  console.log('Transportista agregado correctamente!' + item);
+              },
+              error =>{
+                  console.log("Error agregando transportisa " + error.message);
+                  console.log(item);
+              }
+          );
+        });
 
     });
 
 }
 
 
-export const getAllTransportistas = async(db) =>{
+export const getAllTransportistas = async(db, listTransportista, isLoading) =>{
 
     db.transaction(txn => {
         txn.executeSql(
-          `SELECT * FROM transportista`,
+          `SELECT * FROM TRANSPORTISTA`,
           [],
           (sqlTxn, res) => {
-            console.log("categoria obtenida correctamente");
+            console.log("Transportistas obtenidos correctamente");
+
             let len = res.rows.length;
   
             if (len > 0) {
               let results = [];
+
               for (let i = 0; i < len; i++) {
                 let item = res.rows.item(i);
-                results.push({ id: item.id, name: item.name });
+                //console.log("Mi item::" ,item);
+                results.push(item);
               }
   
-              console.log(results);
+              //console.log('Mis resultados en foreach: ' + results);
+              //return results;
+              setListTransportista(results);
+              setIsLoading(false);
             }else{
                 console.log('No se obtuvo');
             }

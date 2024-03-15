@@ -55,31 +55,45 @@ const Section = ({children, title}): Node => {
 const App: () => Node = () => {
 
   
-const [ listTransportista, setListTransportista] = useState([]);
+  const [ listTransportista, setListTransportista] = useState([]);
+  const [ isLoading, setIsLoading] = useState(true);
 
   /**Conexion a la BD y Cargamos nuestra tablas */
   const loadData = useCallback(async () =>{
     try{
+      //setIsLoading(true);
+      console.log('Vedadero');
       const db = await connectToDatabase();
       await createTables(db);
       await loadTransportista(db);
-      const listResult = await getAllTransportistas(db);
-      console.log(listResult);
+      await getAllTransportistas(db, listTransportista, isLoading);
+      //setIsLoading(false);
+
     }catch(error){
       console.error(error);
     }
   }, []);
 
   useEffect(() =>{
+    /**async function fetchData() {
+      await loadData();
+      setIsLoading(false);
+    }
+    fetchData();**/
     loadData();
-  }, [loadData]);
+    
+  }, []);
 
-  return (
-    <View>
-      <Text>App de Transporte</Text>
-      <DropDownTransportista data={listTransportista} />
-    </View>
-  );
+  
+    return (
+      <View>
+        <Text>App de Transporte</Text>
+        { isLoading && <DropDownTransportista listTransportista={listTransportista} />}
+      </View>
+    );
+  
+
+  
 };
 
 const styles = StyleSheet.create({

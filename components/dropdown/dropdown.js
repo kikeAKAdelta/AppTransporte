@@ -9,9 +9,9 @@ import {
     View,
 } from 'react-native';
 
-export const DropDownTransportista = (data) =>{
+export const DropDownTransportista = ({listTransportista}) =>{
 
-    console.log(`Datos pasados ${data}`);
+    console.log(`Datos pasados ` + listTransportista);
 
     const [selectedValue, setSelectedValue ] = useState(null);
 
