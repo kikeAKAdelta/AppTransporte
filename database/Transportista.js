@@ -7,7 +7,7 @@ const dataTransportista = [
     [3, 'Egnio Flores', '0890993', 'P2567', 3],
 ];
 
-export const loadTransportista = async (db) =>{
+export const loadTransportista = (db) =>{
 
     dataTransportista.forEach((item, index ) => {
 
@@ -21,7 +21,7 @@ export const loadTransportista = async (db) =>{
               insertQuery,
               item,
               (sqlTxn, res) =>{
-                  console.log('Transportista agregado correctamente!' + item);
+                  //console.log('Transportista agregado correctamente!' + item);
               },
               error =>{
                   console.log("Error agregando transportisa " + error.message);
@@ -35,14 +35,14 @@ export const loadTransportista = async (db) =>{
 }
 
 
-export const getAllTransportistas = async(db, listTransportista, isLoading) =>{
+export const getAllTransportistas = (db, listTransportista, isLoading) =>{
 
     db.transaction(txn => {
         txn.executeSql(
           `SELECT * FROM TRANSPORTISTA`,
           [],
           (sqlTxn, res) => {
-            console.log("Transportistas obtenidos correctamente");
+            //console.log("Transportistas obtenidos correctamente");
 
             let len = res.rows.length;
   
@@ -55,10 +55,10 @@ export const getAllTransportistas = async(db, listTransportista, isLoading) =>{
                 results.push(item);
               }
   
-              //console.log('Mis resultados en foreach: ' + results);
-              //return results;
-              setListTransportista(results);
-              setIsLoading(false);
+              console.log(results);
+              return results;
+              //setListTransportista(results);
+              //setIsLoading(false);
             }else{
                 console.log('No se obtuvo');
             }

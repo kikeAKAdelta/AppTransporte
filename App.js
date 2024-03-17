@@ -1,5 +1,5 @@
 import React, { useEffect, useCallback, useState } from 'react';
-import type {Node} from 'react';
+import  {Node} from 'react';
 import { connectToDatabase, createTables } from './database/AppTransporteDB.js';
 import { loadTransportista, getAllTransportistas } from './database/Transportista.js';
 import { DropDownTransportista } from './components/dropdown/dropdown.js';
@@ -25,7 +25,7 @@ import {
 
 /* $FlowFixMe[missing-local-annot] The type annotation(s) required by Flow's
  * LTI update could not be added via codemod */
-const Section = ({children, title}): Node => {
+const Section = ({children, title}) => {
   const isDarkMode = useColorScheme() === 'dark';
   return (
     <View style={styles.sectionContainer}>
@@ -51,48 +51,34 @@ const Section = ({children, title}): Node => {
   );
 };
 
+let db              =  connectToDatabase();
 
-const App: () => Node = () => {
-
+const App = () => {
   
-  const [ listTransportista, setListTransportista] = useState([]);
-  const [ isLoading, setIsLoading] = useState(true);
+  const [ isLoading, setIsLoading ] = useState(true);
 
-  /**Conexion a la BD y Cargamos nuestra tablas */
-  const loadData = useCallback(async () =>{
-    try{
-      //setIsLoading(true);
-      console.log('Vedadero');
-      const db = await connectToDatabase();
-      await createTables(db);
-      await loadTransportista(db);
-      await getAllTransportistas(db, listTransportista, isLoading);
-      //setIsLoading(false);
+  const fetchData =  () => {
 
-    }catch(error){
-      console.error(error);
-    }
-  }, []);
+    let db              =  connectToDatabase();
+    let tablasCreadas   =  createTables(db);
+    //let cargaRealizada  =  loadTransportista(db);
+  }
 
+  /**En el ciclo de vida del componente como funcion, se ejecuta despues del renderizado
+   * Es un equivalente a CompoenentDidMount, CompoenentDidUpdate que son los Lifecycle de una clase 
+   * como componente
+   */
   useEffect(() =>{
-    /**async function fetchData() {
-      await loadData();
-      setIsLoading(false);
-    }
-    fetchData();**/
-    loadData();
-    
+    fetchData();
   }, []);
 
   
-    return (
-      <View>
-        <Text>App de Transporte</Text>
-        { isLoading && <DropDownTransportista listTransportista={listTransportista} />}
-      </View>
-    );
-  
-
+  return (
+    <View>
+      <Text>App de Transporte</Text>
+      <DropDownTransportista />
+    </View>
+  );
   
 };
 

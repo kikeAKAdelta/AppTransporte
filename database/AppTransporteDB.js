@@ -1,7 +1,8 @@
 import { openDatabase, SQLiteDatabase} from "react-native-sqlite-storage";
 
 /**Creamos  */
-export const connectToDatabase = async () =>{
+export const connectToDatabase =  () =>{
+
     return openDatabase(
         {name: 'AppTransporteDB.db', location: 'default'},
         () => { console.log('Conexion a la Base de Datos Exitosa');},
@@ -10,10 +11,11 @@ export const connectToDatabase = async () =>{
             throw Error("Error conexion a Base de Datos Local");
         }
     );
+    
 }
 
 /**Crearemos las tablas de Sistema */
-export const createTables = async(db) =>{
+export const createTables = (db) =>{
 
     const createTableTransportista = `
             CREATE TABLE IF NOT EXISTS TRANSPORTISTA(
