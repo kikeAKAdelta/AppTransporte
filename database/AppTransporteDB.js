@@ -11,7 +11,7 @@ export const connectToDatabase =  () =>{
             throw Error("Error conexion a Base de Datos Local");
         }
     );
-    
+
 }
 
 /**Crearemos las tablas de Sistema */
@@ -81,6 +81,31 @@ export const createTables = (db) =>{
             },
             error =>{
                 console.log("Error creando tabla Transporte Detalle " + error.message);
+            }
+        );
+    });
+
+    const createTableTransportistaRuta = `
+                    CREATE TABLE IF NOT EXISTS TRANSPORTISTA_RUTA(
+                        ID_TR INTEGER PRIMARY KEY AUTOINCREMENT,
+                        ID_TRANSPORTISTA INTEGER,
+                        ID_RUTA INTEGER ,
+                        FOREIGN KEY (ID_TRANSPORTISTA)
+                        REFERENCES  TRANSPORTISTA(ID_TRANSPORTISTA),
+                        FOREIGN KEY (ID_RUTA)
+                        REFERENCES  RUTA(ID_RUTA)
+                    )
+    `;
+
+    db.transaction(txn =>{
+        txn.executeSql(
+            createTableTransportistaRuta,
+            [],
+            (sqlTxn, res) =>{
+                console.log('Tabla Transportista_Ruta creada correctamente!');
+            },
+            error =>{
+                console.log("Error creando tabla transportista ruta " + error.message);
             }
         );
     });

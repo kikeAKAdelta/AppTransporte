@@ -1,7 +1,6 @@
 import React, { useEffect, useCallback, useState } from 'react';
-import  {Node} from 'react';
 import { connectToDatabase, createTables } from './database/AppTransporteDB.js';
-import { loadTransportista, getAllTransportistas } from './database/Transportista.js';
+import { loadTransportista, loadRutas, loadTransportistaRutas } from './database/Transportista.js';
 import { DropDownTransportista } from './components/dropdown/dropdown.js';
 
 import {
@@ -12,6 +11,7 @@ import {
   Text,
   useColorScheme,
   View,
+  Button
 } from 'react-native';
 
 import {
@@ -59,8 +59,10 @@ const App = () => {
 
   const fetchData =  () => {
 
-    let db              =  connectToDatabase();
-    let tablasCreadas   =  createTables(db);
+    //let db              =  connectToDatabase();   //verificar luego
+    let tablasCreadas         =  createTables(db);
+    let cargaRutas            = loadRutas(db);
+    let cargaTransportRutas   = loadTransportistaRutas(db);
     //let cargaRealizada  =  loadTransportista(db);
   }
 
@@ -76,7 +78,11 @@ const App = () => {
   return (
     <View>
       <Text>App de Transporte</Text>
+
       <DropDownTransportista />
+
+      <Button title="Avanzar" />
+
     </View>
   );
   

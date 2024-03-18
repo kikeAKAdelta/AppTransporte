@@ -7,6 +7,20 @@ const dataTransportista = [
     [3, 'Egnio Flores', '0890993', 'P2567', 3],
 ];
 
+const dataRutas = [
+  [1, 'RSA-01', 'Santa Ana Centro'],
+  [2, 'RSN-02', 'Santa Ana Norte'],
+  [3, 'RAH-03', 'Ahuachapan'],
+  [4, 'RCV-03', 'Santa Ana Unicaes - Calle Vieja'],
+];
+
+const dataTransportistaRuta = [
+  [1, 1, 1],
+  [2, 1, 2],
+  [3, 3, 4],
+  [4, 2, 2],
+];
+
 export const loadTransportista = (db) =>{
 
     dataTransportista.forEach((item, index ) => {
@@ -34,6 +48,59 @@ export const loadTransportista = (db) =>{
 
 }
 
+export const loadRutas = (db) =>{
+
+  dataRutas.forEach((item, index ) => {
+
+      const insertQuery = `
+          INSERT INTO RUTA (ID_RUTA, CODIGO, DESCRIPCION)
+          VALUES (?, ?, ?)
+      `
+
+      db.transaction(txn =>{
+        txn.executeSql(
+            insertQuery,
+            item,
+            (sqlTxn, res) =>{
+                console.log('Ruta agregada correctamente!' + item);
+            },
+            error =>{
+                console.log("Error agregando ruta " + error.message);
+                console.log(item);
+            }
+        );
+      });
+
+  });
+
+}
+
+export const loadTransportistaRutas = (db) =>{
+
+  dataTransportistaRuta.forEach((item, index ) => {
+
+      const insertQuery = `
+          INSERT INTO TRANSPORTISTA_RUTA (ID_TR, ID_TRANSPORTISTA, ID_RUTA)
+          VALUES (?, ?, ?)
+      `
+
+      db.transaction(txn =>{
+        txn.executeSql(
+            insertQuery,
+            item,
+            (sqlTxn, res) =>{
+                console.log('Transportista_Ruta agregada correctamente!' + item);
+            },
+            error =>{
+                console.log("Error agregando transportista_ruta " + error.message);
+                console.log(item);
+            }
+        );
+      });
+
+  });
+
+}
 
 export const getAllTransportistas = (db, listTransportista, isLoading) =>{
 

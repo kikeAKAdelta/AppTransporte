@@ -2,19 +2,18 @@ import React, { useState, useEffect } from 'react';
 import {Node} from 'react';
 import RNPickerSelect from 'react-native-picker-select';
 import { openDatabase, SQLiteDatabase} from "react-native-sqlite-storage";
-import { DropDownRutas } from './CmbRutas.js';
-
 
 import {
     StyleSheet,    Text,    useColorScheme,    View,
 } from 'react-native';
 
+
 const db =  openDatabase({name: 'AppTransporteDB.db'});
 
-export const DropDownTransportista = () =>{
+export const DropDownRutas = ({transport}) =>{
 
-    const [ listTransportista, setListTransportista] = useState([]);
-    const [ selectedValue, setSelectedValue ] = useState(null);
+    const [ listRutas, setListRutas]    = useState([]);
+    const [ selectedValue, setSelectedValue ]           = useState(null);
 
     const placeholder = {
         label: '[ SELECCIONE ]',
@@ -24,14 +23,21 @@ export const DropDownTransportista = () =>{
     let options = [];
 
     useEffect(() =>{
-        obtenerTransportistas();
-    }, []);
+        obtenerRutas();
+    }, [transport]);
 
-    const obtenerTransportistas = () =>{
+    const obtenerRutas = () =>{
+
         db.transaction(txn => {
 
             txn.executeSql(
-                `SELECT * FROM TRANSPORTISTA`,
+                `SELECT 
+                        TR.ID_TR
+                    ,   TR.ID_RUTA
+                    ,   TR.ID_TRANSPORTISTA
+                    ,   (SELECT CODIGO FROM RUTA WHERE ID_RUTA = TR.ID_RUTA) CODIGO_RUTA
+                FROM 
+                    TRANSPORTISTA_RUTA TR WHERE ID_TRANSPORTISTA = ${transport}`,
                 [],
                 (sqlTxn, res) => {
                     //console.log("Transportistas obtenidos correctamente");
@@ -48,10 +54,10 @@ export const DropDownTransportista = () =>{
                         }
     
                         console.log(results);
-                        setListTransportista(results);
+                        setListRutas(results);
                         
                     }else{
-                        console.log('No se obtuvo');
+                        console.log('No se obtuvieron rutas');
                     }
                 },
                     error => {
@@ -61,15 +67,14 @@ export const DropDownTransportista = () =>{
         });
     }
 
-    let selectComponent =<Text>No se carga lista transportista</Text> ;
-    let selectRuta =<Text>No se carga lista ruta</Text> ;
+    let selectComponent =<Text>No se carga lista rutas</Text> ;
 
-    if(listTransportista.length > 0){
+    if(listRutas.length > 0){
 
         const options = [];
 
-        listTransportista.forEach((item) => {
-            options.push({ label: item.NOMBRE, value: item.ID_TRANSPORTISTA });
+        listRutas.forEach((item) => {
+            options.push({ label: item.CODIGO_RUTA, value: item.ID_RUTA });
         });
         
         selectComponent = <RNPickerSelect
@@ -79,12 +84,7 @@ export const DropDownTransportista = () =>{
                                 onValueChange={(value) => setSelectedValue(value)}
                             />
                         {selectedValue && <Text>Selected: {selectedValue}</Text>}
-
-                        
         ;
-
-        selectRuta = <DropDownRutas transport= {selectedValue} />;
-        
     }else{
         
         selectComponent = <RNPickerSelect
@@ -99,9 +99,8 @@ export const DropDownTransportista = () =>{
 
     return (
         <View>
-            <Text>Seleccione Transportista:</Text>
+            <Text>Seleccione Ruta:</Text>
             {selectComponent}
-            {selectRuta}
         </View>
     );
 }
