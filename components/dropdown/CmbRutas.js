@@ -82,6 +82,7 @@ export const DropDownRutas = ({transport}) =>{
                                 items={options}
                                 value={selectedValue}
                                 onValueChange={(value) => setSelectedValue(value)}
+                                
                             />
                         {selectedValue && <Text>Selected: {selectedValue}</Text>}
         ;
@@ -99,8 +100,18 @@ export const DropDownRutas = ({transport}) =>{
 
     return (
         <View>
-            <Text>Seleccione Ruta:</Text>
+            <Text style={styles.textDark}>Seleccione Ruta:</Text>
             {selectComponent}
         </View>
     );
 }
+
+const styles = StyleSheet.create({
+    styleCmb:{
+        backgroundColor: '#000',
+        color: '#000'
+    },
+    textDark: {
+        color: '#000'
+    }
+});

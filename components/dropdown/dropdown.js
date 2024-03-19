@@ -6,7 +6,7 @@ import { DropDownRutas } from './CmbRutas.js';
 
 
 import {
-    StyleSheet,    Text,    useColorScheme,    View,
+    StyleSheet,    Text,    useColorScheme,    View, Button
 } from 'react-native';
 
 const db =  openDatabase({name: 'AppTransporteDB.db'});
@@ -63,6 +63,7 @@ export const DropDownTransportista = () =>{
 
     let selectComponent =<Text>No se carga lista transportista</Text> ;
     let selectRuta =<Text>No se carga lista ruta</Text> ;
+    let buttonNext =<Text>No se carga lista ruta</Text> ;
 
     if(listTransportista.length > 0){
 
@@ -77,6 +78,7 @@ export const DropDownTransportista = () =>{
                                 items={options}
                                 value={selectedValue}
                                 onValueChange={(value) => setSelectedValue(value)}
+                                style={styles.styleCmb}
                             />
                         {selectedValue && <Text>Selected: {selectedValue}</Text>}
 
@@ -84,6 +86,7 @@ export const DropDownTransportista = () =>{
         ;
 
         selectRuta = <DropDownRutas transport= {selectedValue} />;
+        buttonNext = <Button title="Siguiente" accessibilityLabel="Learn more about this purple button" />;
         
     }else{
         
@@ -99,9 +102,20 @@ export const DropDownTransportista = () =>{
 
     return (
         <View>
-            <Text>Seleccione Transportista:</Text>
+            <Text style={styles.textDark}>Seleccione Transportista:</Text>
             {selectComponent}
             {selectRuta}
+            {buttonNext}
         </View>
     );
 }
+
+const styles = StyleSheet.create({
+    styleCmb:{
+        backgroundColor: '#000',
+        color: '#000'
+    },
+    textDark: {
+        color: '#000'
+    }
+});
