@@ -82,7 +82,8 @@ export const DropDownRutas = ({transport}) =>{
                                 items={options}
                                 value={selectedValue}
                                 onValueChange={(value) => setSelectedValue(value)}
-                                
+                                style={customPickerStyles}
+                                useNativeAndroidPickerStyle = {false}
                             />
                         {selectedValue && <Text>Selected: {selectedValue}</Text>}
         ;
@@ -93,6 +94,8 @@ export const DropDownRutas = ({transport}) =>{
                                 items={[]}
                                 value={selectedValue}
                                 onValueChange={(value) => setSelectedValue(value)}
+                                style={customPickerStyles}
+                                useNativeAndroidPickerStyle = {false}
                             />
                             {selectedValue && <Text>Selected: {selectedValue}</Text>}
         ;
@@ -100,7 +103,7 @@ export const DropDownRutas = ({transport}) =>{
 
     return (
         <View>
-            <Text style={styles.textDark}>Seleccione Ruta:</Text>
+            <Text style={styles.textStyle}>Seleccione Ruta:</Text>
             {selectComponent}
         </View>
     );
@@ -111,7 +114,33 @@ const styles = StyleSheet.create({
         backgroundColor: '#000',
         color: '#000'
     },
-    textDark: {
-        color: '#000'
+    textStyle: {
+        color: '#000',
+        marginBottom: 5
     }
+});
+
+const customPickerStyles = StyleSheet.create({
+    inputIOS: {
+      fontSize: 14,
+      paddingVertical: 10,
+      paddingHorizontal: 12,
+      borderWidth: 1,
+      borderColor: 'green',
+      borderRadius: 8,
+      color: 'black',
+      paddingRight: 30, // to ensure the text is never behind the icon
+    },
+    inputAndroid: {
+      fontSize: 18,
+      paddingHorizontal: 10,
+      paddingVertical: 8,
+      borderWidth: 1,
+      borderColor: '#c4c4c4',
+      borderRadius: 8,
+      color: 'black',
+      backgroundColor: '#fff',
+      paddingRight: 30, // to ensure the text is never behind the icon
+    },
+
 });

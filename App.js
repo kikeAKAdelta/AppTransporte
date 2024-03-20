@@ -3,6 +3,7 @@ import { useEffect, useCallback, useState } from 'react';
 import { connectToDatabase, createTables } from './database/AppTransporteDB.js';
 import { loadTransportista, loadRutas, loadTransportistaRutas } from './database/Transportista.js';
 import { DropDownTransportista } from './components/dropdown/dropdown.js';
+import { RegistroEmpleado } from './components/Empleado/RegistroEmpleado.js';
 import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 
@@ -64,11 +65,11 @@ const App = () => {
 
   const fetchData =  () => {
 
-    let db              =  connectToDatabase();   //verificar luego
-    let tablasCreadas         =  createTables(db);
+    let db                    = connectToDatabase();       //verificar luego
+    let tablasCreadas         = createTables(db);
     let cargaRutas            = loadRutas(db);
     let cargaTransportRutas   = loadTransportistaRutas(db);
-    let cargaRealizada  =  loadTransportista(db);
+    let cargaRealizada        = loadTransportista(db);
   }
 
   /**En el ciclo de vida del componente como funcion, se ejecuta despues del renderizado
@@ -85,7 +86,7 @@ const App = () => {
       <Stack.Navigator>
         <Stack.Screen name="Home" component={DropDownTransportista} option={{title: 'Welcome'}} />
 
-        <Stack.Screen name="Registro" component={DropDownTransportista} option={{title: 'Welcome'}} />
+        <Stack.Screen name="Registro" component={RegistroEmpleado} option={{title: 'Registro'}} />
        
       </Stack.Navigator>
     </NavigationContainer>

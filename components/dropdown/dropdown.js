@@ -11,7 +11,7 @@ import {
 
 const db =  openDatabase({name: 'AppTransporteDB.db'});
 
-export const DropDownTransportista = () =>{
+export const DropDownTransportista = ({navigation}) =>{
 
     const [ listTransportista, setListTransportista] = useState([]);
     const [ selectedValue, setSelectedValue ] = useState(null);
@@ -78,15 +78,19 @@ export const DropDownTransportista = () =>{
                                 items={options}
                                 value={selectedValue}
                                 onValueChange={(value) => setSelectedValue(value)}
-                                style={styles.styleCmb}
+                                style={customPickerStyles}
+                                useNativeAndroidPickerStyle = {false}
                             />
                         {selectedValue && <Text>Selected: {selectedValue}</Text>}
-
-                        
         ;
 
         selectRuta = <DropDownRutas transport= {selectedValue} />;
-        buttonNext = <Button title="Siguiente" accessibilityLabel="Learn more about this purple button" />;
+        buttonNext = <Button
+                            title="Siguiente" 
+                            accessibilityLabel="Learn more about this purple button" 
+                            onPress= {() => navigation.navigate('Registro', { transport: selectedValue })}
+                      />
+        ;
         
     }else{
         
@@ -95,27 +99,65 @@ export const DropDownTransportista = () =>{
                                 items={[]}
                                 value={selectedValue}
                                 onValueChange={(value) => setSelectedValue(value)}
+                                style={customPickerStyles}
                             />
                             {selectedValue && <Text>Selected: {selectedValue}</Text>}
         ;
+
     }
 
     return (
-        <View>
-            <Text style={styles.textDark}>Seleccione Transportista:</Text>
-            {selectComponent}
-            {selectRuta}
-            {buttonNext}
+        <View style={styles.container}>
+            <View style={styles.containerSection}>
+                <Text style={styles.textStyle}>Seleccione Transportista:</Text>
+                {selectComponent}
+            </View>
+            <View style={styles.containerSection}>
+                {selectRuta}
+            </View>
+            <View style={styles.containerSection}>
+                {buttonNext}
+            </View>
+            
         </View>
     );
 }
 
 const styles = StyleSheet.create({
-    styleCmb:{
-        backgroundColor: '#000',
-        color: '#000'
+    container:{
+        marginLeft: 5,
+        marginRight: 5,
     },
-    textDark: {
-        color: '#000'
+    textStyle: {
+        color: '#000',
+        marginBottom: 5
+    },
+    containerSection:{
+        marginTop: 15,
+        marginBottom: 15,
     }
 });
+
+const customPickerStyles = StyleSheet.create({
+    inputIOS: {
+      fontSize: 14,
+      paddingVertical: 10,
+      paddingHorizontal: 12,
+      borderWidth: 1,
+      borderColor: 'green',
+      borderRadius: 8,
+      color: 'black',
+      paddingRight: 30, // to ensure the text is never behind the icon
+    },
+    inputAndroid: {
+      fontSize: 18,
+      paddingHorizontal: 10,
+      paddingVertical: 8,
+      borderWidth: 1,
+      borderColor: '#c4c4c4',
+      borderRadius: 8,
+      color: 'black',
+      backgroundColor: '#fff',
+      paddingRight: 30, // to ensure the text is never behind the icon
+    },
+  });
