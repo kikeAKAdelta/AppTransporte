@@ -33,6 +33,7 @@ export const RegistroEmpleado = ({navigation, route}) =>{
     const [ isFocused, setIsFocused ] = useState(false);
 
     console.log(route.params.transport);
+    console.log(route.params.ruta);
 
     return(
         <View style={styles.container}>

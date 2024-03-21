@@ -4,16 +4,16 @@ import RNPickerSelect from 'react-native-picker-select';
 import { openDatabase, SQLiteDatabase} from "react-native-sqlite-storage";
 
 import {
-    StyleSheet,    Text,    useColorScheme,    View,
+    StyleSheet,    Text,    useColorScheme,    View, Button
 } from 'react-native';
 
 
 const db =  openDatabase({name: 'AppTransporteDB.db'});
 
-export const DropDownRutas = ({transport}) =>{
+export const DropDownRutas = ({navigation, transport}) =>{
 
-    const [ listRutas, setListRutas]    = useState([]);
-    const [ selectedValue, setSelectedValue ]           = useState(null);
+    const [ listRutas, setListRutas]            = useState([]);
+    const [ selectedRutaValue, setSelectedRutaValue ]   = useState(null);
 
     const placeholder = {
         label: '[ SELECCIONE ]',
@@ -67,6 +67,8 @@ export const DropDownRutas = ({transport}) =>{
         });
     }
 
+    let buttonNext =<Text>No se carga lista ruta</Text> ;
+
     let selectComponent =<Text>No se carga lista rutas</Text> ;
 
     if(listRutas.length > 0){
@@ -80,24 +82,49 @@ export const DropDownRutas = ({transport}) =>{
         selectComponent = <RNPickerSelect
                                 placeholder={placeholder}
                                 items={options}
-                                value={selectedValue}
-                                onValueChange={(value) => setSelectedValue(value)}
+                                value={selectedRutaValue}
+                                onValueChange={(value) => setSelectedRutaValue(value)}
                                 style={customPickerStyles}
                                 useNativeAndroidPickerStyle = {false}
                             />
-                        {selectedValue && <Text>Selected: {selectedValue}</Text>}
+                        
         ;
+
+        if(selectedRutaValue != null){
+            buttonNext = <Button
+                            title="Siguiente" 
+                            accessibilityLabel="Boton de Siguiente" 
+                            onPress= {() => navigation.navigate('Registro', { transport: transport, ruta: selectedRutaValue })}
+                      />
+            ;
+        }else{
+            buttonNext = <Button
+                            title="Siguiente" 
+                            accessibilityLabel="Boton de Siguiente" 
+                            onPress= {() => alert('Seleccione transportista y ruta')}
+                      />
+            ;
+        }
+
+        
     }else{
         
         selectComponent = <RNPickerSelect
                                 placeholder={placeholder}
                                 items={[]}
-                                value={selectedValue}
-                                onValueChange={(value) => setSelectedValue(value)}
+                                value={selectedRutaValue}
+                                onValueChange={(value) => setSelectedRutaValue(value)}
                                 style={customPickerStyles}
                                 useNativeAndroidPickerStyle = {false}
                             />
-                            {selectedValue && <Text>Selected: {selectedValue}</Text>}
+                            {selectedRutaValue && <Text>Selected: {selectedRutaValue}</Text>}
+        ;
+
+        buttonNext = <Button
+                            title="Siguiente" 
+                            accessibilityLabel="Boton de Siguiente" 
+                            onPress= {() => alert('Seleccione transportista y ruta')}
+                      />
         ;
     }
 
@@ -105,6 +132,11 @@ export const DropDownRutas = ({transport}) =>{
         <View>
             <Text style={styles.textStyle}>Seleccione Ruta:</Text>
             {selectComponent}
+            {selectedRutaValue && <Text style={styles.textStyle}>Selected: {selectedRutaValue}</Text>}
+
+            <View style={styles.containerSection}>
+                {buttonNext}
+            </View>
         </View>
     );
 }
@@ -117,6 +149,10 @@ const styles = StyleSheet.create({
     textStyle: {
         color: '#000',
         marginBottom: 5
+    },
+    containerSection:{
+        marginTop: 15,
+        marginBottom: 15,
     }
 });
 

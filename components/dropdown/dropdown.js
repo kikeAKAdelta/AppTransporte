@@ -15,6 +15,7 @@ export const DropDownTransportista = ({navigation}) =>{
 
     const [ listTransportista, setListTransportista] = useState([]);
     const [ selectedValue, setSelectedValue ] = useState(null);
+    const [ itemRuta, setItemRuta ] = useState(null);
 
     const placeholder = {
         label: '[ SELECCIONE ]',
@@ -64,6 +65,7 @@ export const DropDownTransportista = ({navigation}) =>{
     let selectComponent =<Text>No se carga lista transportista</Text> ;
     let selectRuta =<Text>No se carga lista ruta</Text> ;
     let buttonNext =<Text>No se carga lista ruta</Text> ;
+    let optionSelected = {};
 
     if(listTransportista.length > 0){
 
@@ -81,16 +83,12 @@ export const DropDownTransportista = ({navigation}) =>{
                                 style={customPickerStyles}
                                 useNativeAndroidPickerStyle = {false}
                             />
-                        {selectedValue && <Text>Selected: {selectedValue}</Text>}
+                        
         ;
 
-        selectRuta = <DropDownRutas transport= {selectedValue} />;
-        buttonNext = <Button
-                            title="Siguiente" 
-                            accessibilityLabel="Learn more about this purple button" 
-                            onPress= {() => navigation.navigate('Registro', { transport: selectedValue })}
-                      />
-        ;
+        optionSelected = <Text>{selectedValue && <Text>Selected: {selectedValue}</Text>} </Text>;
+
+        selectRuta = <DropDownRutas transport={selectedValue} navigation={navigation} />;
         
     }else{
         
@@ -111,12 +109,10 @@ export const DropDownTransportista = ({navigation}) =>{
             <View style={styles.containerSection}>
                 <Text style={styles.textStyle}>Seleccione Transportista:</Text>
                 {selectComponent}
+                {selectedValue && <Text style={styles.textStyle}>Selected: {selectedValue}</Text>}
             </View>
             <View style={styles.containerSection}>
                 {selectRuta}
-            </View>
-            <View style={styles.containerSection}>
-                {buttonNext}
             </View>
             
         </View>
