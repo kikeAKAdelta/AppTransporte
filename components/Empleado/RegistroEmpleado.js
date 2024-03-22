@@ -30,10 +30,53 @@ const db =  openDatabase({name: 'AppTransporteDB.db'});
 export const RegistroEmpleado = ({navigation, route}) =>{
 
     const [ empleado, setEmpleado ] = useState([]);
-    const [ isFocused, setIsFocused ] = useState(false);
+    const [ isFocused, setIsFocused ] = useState(false)
+    const [ registroEmp, setRegistroEmp ] = useState();
 
     console.log(route.params.transport);
     console.log(route.params.ruta);
+
+    const saveEmpleado = () =>{
+        console.log(registroEmp);
+
+        let idTransportista = route.params.transport;
+        let idRuta = route.params.ruta;
+
+        const empleado = [
+                idTransportista
+            ,   idRuta
+            ,   'Enrique Teste'
+            ,   'PLACA 001'
+            ,   registroEmp
+        ];
+
+        const insertQuery = `
+            INSERT INTO TRANSPORTE_DETALLE 
+                (       ID_TRANSPORTISTA
+                    ,   ID_RUTA
+                    ,   NOMBRE_TRANSPORTISTA
+                    ,   PLACA
+                    ,   CODIGO_EMPLEADO
+                )
+            VALUES (?, ?, ?, ?, ?)
+        `
+
+        db.transaction(txn =>{
+                txn.executeSql(
+                    insertQuery,
+                    empleado,
+                    (sqlTxn, res) =>{
+                        console.log('Empleado agregado correctamente!' + empleado);
+                        alert('Empleado registrado correctamente');
+                    },
+                    error =>{
+                        console.log("Error agregando empleado " + error.message);
+                        console.log(item);
+                    }
+                );
+            }
+        );
+    }
 
     return(
         <View style={styles.container}>
@@ -42,8 +85,10 @@ export const RegistroEmpleado = ({navigation, route}) =>{
                 placeholder='Scanee Codigo' 
                 placeholderTextColor= '#000'
                 onFocus = { () => setIsFocused(true)}
+                onChangeText = { (text) => setRegistroEmp(text) }
+                keyboardType="numeric"
             />
-            <Button title="Registrar Empleado" />
+            <Button title="Registrar Empleado" onPress={ saveEmpleado } />
         </View>
 
     );

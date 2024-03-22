@@ -64,13 +64,18 @@ export const createTables = (db) =>{
     const createTableTransporteDetalle = `
         CREATE TABLE IF NOT EXISTS TRANSPORTE_DETALLE(
             ID_TRANSPORT INTEGER PRIMARY KEY AUTOINCREMENT,
-            ID_TRANSPORTISTA TEXT(150),
+            ID_TRANSPORTISTA TEXT(20),
+            ID_RUTA TEXT(50),
             NOMBRE_TRANSPORTISTA TEXT(150),
             PLACA TEXT(150),
             CODIGO_EMPLEADO TEXT(6),
-            FECHA_REGISTRO
+            FECHA_REGISTRO DATETIME DEFAULT CURRENT_TIMESTAMP
         )
     `;
+
+    /**const createTableTransporteDetalle = `
+        DROP TABLE TRANSPORTE_DETALLE;
+    `;**/
 
     db.transaction(txn =>{
         txn.executeSql(
