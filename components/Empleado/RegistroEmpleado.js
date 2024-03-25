@@ -80,15 +80,20 @@ export const RegistroEmpleado = ({navigation, route}) =>{
 
     return(
         <View style={styles.container}>
-            <TextInput
-                style={styles.input} 
-                placeholder='Scanee Codigo' 
-                placeholderTextColor= '#000'
-                onFocus = { () => setIsFocused(true)}
-                onChangeText = { (text) => setRegistroEmp(text) }
-                keyboardType="numeric"
-            />
-            <Button title="Registrar Empleado" onPress={ saveEmpleado } />
+            <View>
+                <TextInput
+                    style={styles.input} 
+                    placeholder='Scanee Codigo' 
+                    placeholderTextColor= '#000'
+                    onFocus = { () => setIsFocused(true)}
+                    onChangeText = { (text) => setRegistroEmp(text) }
+                    keyboardType="numeric"
+                />
+                <Button title="Registrar Empleado" onPress={ saveEmpleado } />
+            </View>
+            <View>
+                <Button title="Consultar Registros" onPress={ () => navigation.navigate('ConsultaEmpleado', {}) } />
+            </View>
         </View>
 
     );

@@ -4,6 +4,7 @@ import { connectToDatabase, createTables } from './database/AppTransporteDB.js';
 import { loadTransportista, loadRutas, loadTransportistaRutas } from './database/Transportista.js';
 import { DropDownTransportista } from './components/dropdown/dropdown.js';
 import { RegistroEmpleado } from './components/Empleado/RegistroEmpleado.js';
+import { ConsultaEmpleado } from './components/Empleado/ConsultaEmpleado.js';
 import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 
@@ -85,11 +86,12 @@ const App = () => {
     <NavigationContainer>
       <Stack.Navigator>
         <Stack.Screen name="Home" component={DropDownTransportista} option={{title: 'Welcome'}} />
-
         <Stack.Screen name="Registro" component={RegistroEmpleado} option={{title: 'Registro'}} />
-       
+        <Stack.Screen name="ConsultaEmpleado" component={ConsultaEmpleado} option={{title: 'Registro'}} />
       </Stack.Navigator>
     </NavigationContainer>
+
+    
   );
   
 };

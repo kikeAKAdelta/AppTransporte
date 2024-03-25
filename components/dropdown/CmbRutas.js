@@ -61,7 +61,7 @@ export const DropDownRutas = ({navigation, transport}) =>{
                     }
                 },
                     error => {
-                    console.log("error on getting categories " + error.message);
+                    console.log("Erro obteniendo las rutas de los transportistas " + error.message);
                 },
             );
         });
