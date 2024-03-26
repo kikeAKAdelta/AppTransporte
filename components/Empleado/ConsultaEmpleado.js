@@ -76,23 +76,33 @@ export const ConsultaEmpleado = ({navigation}) =>{
 
     if(listEmpleados.length > 0){
 
-        console.log(listEmpleados);
-        console.log(Object.values(listEmpleados));
-
         let empleados = [];
         let empleado = [];
+        let arrItem = [];
 
-        for(let index = 0; index < listEmpleados.length; index++){
-            console.log(Object.values(listEmpleados[index]));
-            empleado.push(Object.values(listEmpleados[index]));
+        console.log(listEmpleados);
+
+        for(let index =0; index < listEmpleados.length;index++){
+            console.log(listEmpleados[index]);
+            empleado = [];
+            let codigoEmpleado      = listEmpleados[index].CODIGO_EMPLEADO;
+            let codigoRuta          = listEmpleados[index].CODIGO_RUTA;
+            let fechaRegistro       = listEmpleados[index].FECHA_REGISTRO;
+            let nombreTransportista = listEmpleados[index].NOMBRE_TRANSPORTISTA;
+
+            empleado.push(nombreTransportista);
+            empleado.push(codigoRuta);
+            empleado.push(codigoEmpleado);
+            empleado.push(fechaRegistro);
+
+            empleados.push(empleado);
+
         }
 
-        empleados.push(empleado);
-
-        const thead = ['NOMBRE_TRANSPORTISTA', 'CODIGO_RUTA', 'CODIGO_RUTA', 'CODIGO_EMPLEADO', 'FECHA_REGISTRO'];
+        const thead = ['TRANSPORT', 'RUTA', 'COD EMP', 'FEC REG'];
         table = <Table borderStyle={{borderWidth: 2, borderColor: '#c8e1ff'}}>
-                    <Row data={thead} style={styles.head} textStyle={styles.text}/>
-                    <Rows data={empleados} textStyle={styles.text}/>
+                    <Row data={thead} style={styles.head} textStyle={styles.textHead}/>
+                    <Rows data={empleados} style={styles.tableBody} textStyle={styles.tableBody} />
                 </Table>
         ;
     }
@@ -106,7 +116,18 @@ export const ConsultaEmpleado = ({navigation}) =>{
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1, padding: 16, paddingTop: 30, backgroundColor: '#fff' },
-    head: { height: 40, backgroundColor: '#f1f8ff' },
-    text: { margin: 6 }
+    head: { 
+            height: 40
+        ,   backgroundColor: '#3792C6'
+        ,   color: '#fff !important'
+        ,   fontWeight: 'bold'
+    },
+    textHead:{
+        textAlign: 'center'
+    },
+    tableBody:{
+            color: 'black'
+        ,   textAlign: 'center'
+    }
+    
   });
