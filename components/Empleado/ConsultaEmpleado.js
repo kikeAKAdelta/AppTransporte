@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { openDatabase, SQLiteDatabase} from "react-native-sqlite-storage";
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import { Table, TableWrapper, Row, Rows, Col, Cols, Cell } from 'react-native-table-component';
+import RNFetchBlob from 'rn-fetch-blob';
 
 import {
     StyleSheet,    Text,    useColorScheme,    View, Button
@@ -72,18 +73,65 @@ export const ConsultaEmpleado = ({navigation}) =>{
         });
     }
 
+    /**
+     * Funcion encargada de crear un documento excel en el dispositivo para poder lo exportar
+     */
+    const exportData = () =>{
+        if(listEmpleados.length > 0){
+
+            let empleados   = [];
+            let empleado    = [];
+            let arrItem     = [];
+    
+            console.log(listEmpleados);
+    
+            for(let index = 0; index < listEmpleados.length;index++){
+    
+                empleado = [];
+                let codigoEmpleado      = listEmpleados[index].CODIGO_EMPLEADO;
+                let codigoRuta          = listEmpleados[index].CODIGO_RUTA;
+                let fechaRegistro       = listEmpleados[index].FECHA_REGISTRO;
+                let nombreTransportista = listEmpleados[index].NOMBRE_TRANSPORTISTA;
+    
+                empleado.push(nombreTransportista);
+                empleado.push(codigoRuta);
+                empleado.push(codigoEmpleado);
+                empleado.push(fechaRegistro);
+    
+                empleados.push(empleado);
+    
+            }
+
+            const headerString = 'Transportista,Ruta,CodigoEmpleado, FechaRegistro\n';
+            const rowString = empleados.map(d => `${d[0]},${d[1]},${d[2]},${d[3]}\n`).join('');
+
+            const csvString = `${headerString}${rowString}`;
+            const pathToWrite = `${RNFetchBlob.fs.dirs.DownloadDir}/dataTransportista.csv`;
+            // pathToWrite /storage/emulated/0/Download/data.csv
+            RNFetchBlob.fs
+                .writeFile(pathToWrite, csvString, 'utf8')
+                .then(() => {
+                console.log(`wrote file ${pathToWrite}`);
+                alert('descargado correctamente');
+                // wrote file /storage/emulated/0/Download/data.csv
+            }) .catch(error => console.error(error));
+    
+            
+        }
+    }
+
     let table = <Table></Table>
 
     if(listEmpleados.length > 0){
 
-        let empleados = [];
-        let empleado = [];
-        let arrItem = [];
+        let empleados   = [];
+        let empleado    = [];
+        let arrItem     = [];
 
         console.log(listEmpleados);
 
-        for(let index =0; index < listEmpleados.length;index++){
-            console.log(listEmpleados[index]);
+        for(let index = 0; index < listEmpleados.length;index++){
+
             empleado = [];
             let codigoEmpleado      = listEmpleados[index].CODIGO_EMPLEADO;
             let codigoRuta          = listEmpleados[index].CODIGO_RUTA;
@@ -107,8 +155,14 @@ export const ConsultaEmpleado = ({navigation}) =>{
         ;
     }
 
+    
+
     return (
         <View>
+            <Button
+                title="Exportar"
+                onPress= {exportData}
+            />
             {table}
         </View>
     );
