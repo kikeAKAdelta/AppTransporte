@@ -120,6 +120,85 @@ export const ConsultaEmpleado = ({navigation}) =>{
         }
     }
 
+    /**
+     * Funcion encargada de poder enviar la informacion a DropBox
+     */
+    const sendData = () =>{
+
+        const PATH_TO_THE_FILE = `${RNFetchBlob.fs.dirs.DownloadDir}/dataTransportista.csv`;
+
+        /**El beare lo obtengo de dropbox donde he creado mi proyecto como desarrollador */
+        const beare = ``;
+
+        /**La URL de envio para desarrollador de Dropbox siempre debe de ser esa URL (App Console)
+         * de acuerdo al BearerToken nuestro archivo se sube en el proyecto correspondiente
+         * Para consultar el archivo subido con nombre 'miarchivo.csv' 
+         * Nuestro archivo creado en el dispositivo movil lo obtenemos desde las descargas de acuerdo al PathFile
+         */
+        RNFetchBlob.fetch(
+            "POST",
+            "https://content.dropboxapi.com/2/files/upload",
+            {
+                // dropbox upload headers
+                Authorization: `Bearer ${beare}`,
+                "Dropbox-API-Arg": JSON.stringify({
+                path: "/miarchivo.csv",
+                mode: "add",
+                autorename: true,
+                mute: false,
+                }), //Descomentar estas lineas despues
+                "Content-Type": "application/octet-stream",
+                // Change BASE64 encoded data to a file path with prefix `RNFetchBlob-file://`.
+                // Or simply wrap the file path with RNFetchBlob.wrap().
+            },
+            RNFetchBlob.wrap(PATH_TO_THE_FILE)
+        )
+        .then((res) => {
+            console.log(res.text());
+            alert('Archivo Subido Correctamente');
+        })
+        .catch((err) => {
+            // error handling ..
+            console.log('Error');
+        });
+    }
+
+    /**
+     * Funcion encargada de poder enviar la informacion a Google Drive
+     */
+    const sendDataDrive = () =>{
+
+        const PATH_TO_THE_FILE = `${RNFetchBlob.fs.dirs.DownloadDir}/dataTransportista.csv`;
+
+        const beare = ``;
+
+        /**La URL de envio para desarrollador de Dropbox siempre debe de ser esa URL (App Console)
+         * de acuerdo al BearerToken nuestro archivo se sube en el proyecto correspondiente
+         * Para consultar el archivo subido con nombre 'miarchivo.csv' 
+         * Nuestro archivo creado en el dispositivo movil lo obtenemos desde las descargas de acuerdo al PathFile
+         */
+        RNFetchBlob.fetch(
+            "POST",
+            "https://content.dropboxapi.com/2/files/upload",
+            {
+                // dropbox upload headers
+                Authorization: `Bearer ${beare}`,
+                "Content-Type": "application/octet-stream",
+                // Change BASE64 encoded data to a file path with prefix `RNFetchBlob-file://`.
+                // Or simply wrap the file path with RNFetchBlob.wrap().
+            },
+            RNFetchBlob.wrap(PATH_TO_THE_FILE)
+        )
+        .then((res) => {
+            console.log(res.text());
+            alert('Archivo Subido Correctamente');
+        })
+        .catch((err) => {
+            // error handling ..
+            console.log('Error');
+        });
+    }
+
     let table = <Table></Table>
 
     if(listEmpleados.length > 0){
@@ -155,13 +234,19 @@ export const ConsultaEmpleado = ({navigation}) =>{
         ;
     }
 
-    
-
     return (
         <View>
             <Button
                 title="Exportar"
                 onPress= {exportData}
+            />
+            <Button
+                title="Send Data DropBox"
+                onPress= {sendData}
+            />
+            <Button
+                title="Send Data Drive"
+                onPress= {sendDataDrive}
             />
             {table}
         </View>
