@@ -3,6 +3,8 @@ import { openDatabase, SQLiteDatabase} from "react-native-sqlite-storage";
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import { Table, TableWrapper, Row, Rows, Col, Cols, Cell } from 'react-native-table-component';
 import RNFetchBlob from 'rn-fetch-blob';
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
+import { google } from 'googleapis';
 
 import {
     StyleSheet,    Text,    useColorScheme,    View, Button
@@ -128,7 +130,7 @@ export const ConsultaEmpleado = ({navigation}) =>{
         const PATH_TO_THE_FILE = `${RNFetchBlob.fs.dirs.DownloadDir}/dataTransportista.csv`;
 
         /**El beare lo obtengo de dropbox donde he creado mi proyecto como desarrollador */
-        const beare = ``;
+        const bearerTkn = ``;
 
         /**La URL de envio para desarrollador de Dropbox siempre debe de ser esa URL (App Console)
          * de acuerdo al BearerToken nuestro archivo se sube en el proyecto correspondiente
@@ -140,12 +142,12 @@ export const ConsultaEmpleado = ({navigation}) =>{
             "https://content.dropboxapi.com/2/files/upload",
             {
                 // dropbox upload headers
-                Authorization: `Bearer ${beare}`,
+                Authorization: `Bearer ${bearerTkn}`,
                 "Dropbox-API-Arg": JSON.stringify({
-                path: "/miarchivo.csv",
-                mode: "add",
-                autorename: true,
-                mute: false,
+                    path: "/miarchivo3.csv",
+                    mode: "add",
+                    autorename: true,
+                    mute: false,
                 }), //Descomentar estas lineas despues
                 "Content-Type": "application/octet-stream",
                 // Change BASE64 encoded data to a file path with prefix `RNFetchBlob-file://`.
@@ -166,38 +168,50 @@ export const ConsultaEmpleado = ({navigation}) =>{
     /**
      * Funcion encargada de poder enviar la informacion a Google Drive
      */
-    const sendDataDrive = () =>{
+    /**const sendDataDrive = async () =>{
 
-        const PATH_TO_THE_FILE = `${RNFetchBlob.fs.dirs.DownloadDir}/dataTransportista.csv`;
+        const CLIENT_ID = '';
+        const CLIENT_SECRET = '';
+        const REDIRECT_URL = '';
 
-        const beare = ``;
-
-        /**La URL de envio para desarrollador de Dropbox siempre debe de ser esa URL (App Console)
-         * de acuerdo al BearerToken nuestro archivo se sube en el proyecto correspondiente
-         * Para consultar el archivo subido con nombre 'miarchivo.csv' 
-         * Nuestro archivo creado en el dispositivo movil lo obtenemos desde las descargas de acuerdo al PathFile
-         */
-        RNFetchBlob.fetch(
-            "POST",
-            "https://content.dropboxapi.com/2/files/upload",
-            {
-                // dropbox upload headers
-                Authorization: `Bearer ${beare}`,
-                "Content-Type": "application/octet-stream",
-                // Change BASE64 encoded data to a file path with prefix `RNFetchBlob-file://`.
-                // Or simply wrap the file path with RNFetchBlob.wrap().
-            },
-            RNFetchBlob.wrap(PATH_TO_THE_FILE)
-        )
-        .then((res) => {
-            console.log(res.text());
-            alert('Archivo Subido Correctamente');
-        })
-        .catch((err) => {
-            // error handling ..
-            console.log('Error');
+        GoogleSignin.configure({
+            webClientId: '',
+            scopes: ['']
         });
-    }
+
+        const oauth2Client = new google.auth.OAuth2(CLIENT_ID, CLIENT_SECRET, REDIRECT_URL); 
+
+        const tokens = await GoogleSignin.getTokens();
+        await oauth2Client.setCredentials(tokens);
+
+        const service = google.drive({ version: "v3", auth });
+
+        const fileMetadata = {
+            name: "Folder name",
+            mimeType: "application/vnd.google-apps.folder",
+        };
+
+        const file = await service.files.create({
+            resource: fileMetadata,
+            fields: "id",
+        });
+
+        const jsonFileMetadata = {
+            name: "file.json",
+            parents: [file.data.id],
+        };
+
+        const media = {
+                    mimeType: "application/json",
+                    body: readable,
+                };
+
+        const jsonfile = await service.files.create({
+                    resource: JSON_FILE,
+                    media: media,
+                    fields: "id",
+                });
+    }**/
 
     let table = <Table></Table>
 
@@ -243,10 +257,6 @@ export const ConsultaEmpleado = ({navigation}) =>{
             <Button
                 title="Send Data DropBox"
                 onPress= {sendData}
-            />
-            <Button
-                title="Send Data Drive"
-                onPress= {sendDataDrive}
             />
             {table}
         </View>
