@@ -91,9 +91,6 @@ export const RegistroEmpleado = ({navigation, route}) =>{
                 />
                 <Button title="Registrar Empleado" onPress={ saveEmpleado } />
             </View>
-            <View>
-                <Button title="Consultar Registros" onPress={ () => navigation.navigate('ConsultaEmpleado', {}) } />
-            </View>
         </View>
 
     );

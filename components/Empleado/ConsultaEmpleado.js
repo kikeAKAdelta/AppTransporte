@@ -15,8 +15,6 @@ const db =  openDatabase({name: 'AppTransporteDB.db'});
 
 export const ConsultaEmpleado = ({navigation}) =>{
 
-    console.log('Ingreso al componente consulta Empleado');
-
     const [ listEmpleados, setListEmpleados ] = useState([]);
 
     useEffect(() =>{
@@ -28,8 +26,6 @@ export const ConsultaEmpleado = ({navigation}) =>{
      * Funcion encargada de obtener la lista de empleados registrados en sistema.
      */
     const getListaEmpleados = () =>{
-
-        console.log('Ingreso a metdoo de obtener lista empleado');
 
         const sql = `SELECT 
                             TD.ID_TRANSPORT
@@ -84,8 +80,6 @@ export const ConsultaEmpleado = ({navigation}) =>{
             let empleados   = [];
             let empleado    = [];
             let arrItem     = [];
-    
-            console.log(listEmpleados);
     
             for(let index = 0; index < listEmpleados.length;index++){
     
@@ -213,15 +207,15 @@ export const ConsultaEmpleado = ({navigation}) =>{
                 });
     }**/
 
-    let table = <Table></Table>
+    let table = <Table></Table>;
+
+ 
 
     if(listEmpleados.length > 0){
 
         let empleados   = [];
         let empleado    = [];
         let arrItem     = [];
-
-        console.log(listEmpleados);
 
         for(let index = 0; index < listEmpleados.length;index++){
 

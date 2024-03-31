@@ -35,28 +35,27 @@ export const DropDownTransportista = ({navigation}) =>{
                 `SELECT * FROM TRANSPORTISTA`,
                 [],
                 (sqlTxn, res) => {
-                    //console.log("Transportistas obtenidos correctamente");
     
                     let len = res.rows.length;
     
                     if (len > 0) {
     
                         let results = [];
+                        setListTransportista([]);
     
                         for (let i = 0; i < len; i++) {
                             let item = res.rows.item(i);
                             results.push(item);
                         }
-    
-                        console.log(results);
+
                         setListTransportista(results);
                         
                     }else{
-                        console.log('No se obtuvo');
+                        console.log('No se obtuvo lista de transportista para el select');
                     }
                 },
                     error => {
-                    console.log("error on getting categories " + error.message);
+                    console.log("error obteniendo lista de transportista " + error.message);
                 },
             );
         });

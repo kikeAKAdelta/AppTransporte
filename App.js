@@ -1,14 +1,17 @@
 import 'react-native-gesture-handler';
 import * as React from 'react';
 import { useEffect, useCallback, useState } from 'react';
+import {NavigationContainer} from '@react-navigation/native';
+import {createNativeStackNavigator} from '@react-navigation/native-stack';
+import { createDrawerNavigator } from '@react-navigation/drawer';
+
 import { connectToDatabase, createTables } from './database/AppTransporteDB.js';
 import { loadTransportista, loadRutas, loadTransportistaRutas } from './database/Transportista.js';
 import { DropDownTransportista } from './components/dropdown/dropdown.js';
 import { RegistroEmpleado } from './components/Empleado/RegistroEmpleado.js';
 import { ConsultaEmpleado } from './components/Empleado/ConsultaEmpleado.js';
-import {NavigationContainer} from '@react-navigation/native';
-import {createNativeStackNavigator} from '@react-navigation/native-stack';
-import { createDrawerNavigator } from '@react-navigation/drawer';
+import { ExportDataEmpleados } from './components/ExportData/ExportDataUser.js';
+
 
 import {
   SafeAreaView,
@@ -89,6 +92,7 @@ const App = () => {
       <Drawer.Navigator>
         <Drawer.Screen name="Home" component={DropDownTransportista} />
         <Drawer.Screen name="Consulta Empleado" component={ConsultaEmpleado} />
+        <Drawer.Screen name="Exportar Registros" component={ExportDataEmpleados} />
       </Drawer.Navigator>
     );
   }

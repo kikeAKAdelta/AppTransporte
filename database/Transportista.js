@@ -15,10 +15,10 @@ const dataRutas = [
 ];
 
 const dataTransportistaRuta = [
-  [1, 1, 1],
-  [2, 1, 2],
-  [3, 3, 4],
-  [4, 2, 2],
+  [1, 1],
+  [1, 2],
+  [3, 4],
+  [2, 2],
 ];
 
 export const loadTransportista = (db) =>{
@@ -80,8 +80,8 @@ export const loadTransportistaRutas = (db) =>{
   dataTransportistaRuta.forEach((item, index ) => {
 
       const insertQuery = `
-          INSERT INTO TRANSPORTISTA_RUTA (ID_TR, ID_TRANSPORTISTA, ID_RUTA)
-          VALUES (?, ?, ?)
+          INSERT INTO TRANSPORTISTA_RUTA (ID_TRANSPORTISTA, ID_RUTA)
+          VALUES (?, ?)
       `
 
       db.transaction(txn =>{

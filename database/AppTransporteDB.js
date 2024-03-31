@@ -27,6 +27,10 @@ export const createTables = (db) =>{
             )
     `;
 
+    /**const createTableTransportista = `
+        DROP TABLE TRANSPORTISTA
+    `;**/
+
     db.transaction(txn =>{
         txn.executeSql(
             createTableTransportista,
@@ -92,15 +96,19 @@ export const createTables = (db) =>{
 
     const createTableTransportistaRuta = `
                     CREATE TABLE IF NOT EXISTS TRANSPORTISTA_RUTA(
-                        ID_TR INTEGER PRIMARY KEY AUTOINCREMENT,
                         ID_TRANSPORTISTA INTEGER,
-                        ID_RUTA INTEGER ,
+                        ID_RUTA INTEGER,
                         FOREIGN KEY (ID_TRANSPORTISTA)
                         REFERENCES  TRANSPORTISTA(ID_TRANSPORTISTA),
                         FOREIGN KEY (ID_RUTA)
-                        REFERENCES  RUTA(ID_RUTA)
+                        REFERENCES  RUTA(ID_RUTA),
+                        PRIMARY KEY (ID_TRANSPORTISTA, ID_RUTA)
                     )
     `;
+
+    /**const createTableTransportistaRuta = `
+        DROP TABLE TRANSPORTISTA_RUTA;
+    `;**/
 
     db.transaction(txn =>{
         txn.executeSql(
