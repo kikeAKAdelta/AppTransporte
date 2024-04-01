@@ -26,7 +26,7 @@ export const ExportDataEmpleados = ({navigation}) =>{
     /**
      * Funcion encargada de obtener la lista de empleados registrados en sistema.
      */
-    const getListaEmpleados = () =>{
+    const getListaEmpleados = (fecha) =>{
 
         const sql = `SELECT 
                             TD.ID_TRANSPORT
@@ -40,6 +40,8 @@ export const ExportDataEmpleados = ({navigation}) =>{
                         ,   TD.FECHA_REGISTRO
                     FROM 
                         TRANSPORTE_DETALLE TD
+                    WHERE
+                        TD.FECHA_REGISTRO = '${fecha}'
         `
 
         db.transaction(txn => {
@@ -72,6 +74,9 @@ export const ExportDataEmpleados = ({navigation}) =>{
         });
     }
 
+    /**
+     * Funcion encargada de obtener las fechas unicas en las cuales se han tenido registro de empleados.
+     */
     const getListFechasRegistros = () => {
 
         /**Sql que obtiene todos las fechas de registros de empleados unicos */
@@ -117,6 +122,54 @@ export const ExportDataEmpleados = ({navigation}) =>{
 
     }
 
+    /**
+     * Funcion encargada de crear un documento excel en el dispositivo para poder lo exportar de acuerdo a la fecha en concreto
+     */
+    const exportDataFecha = (fecha) =>{
+
+        getListaEmpleados(fecha);
+
+        if(listEmpleados.length > 0){
+
+            let empleados   = [];
+            let empleado    = [];
+            let arrItem     = [];
+    
+            for(let index = 0; index < listEmpleados.length;index++){
+    
+                empleado = [];
+                let codigoEmpleado      = listEmpleados[index].CODIGO_EMPLEADO;
+                let codigoRuta          = listEmpleados[index].CODIGO_RUTA;
+                let fechaRegistro       = listEmpleados[index].FECHA_REGISTRO;
+                let nombreTransportista = listEmpleados[index].NOMBRE_TRANSPORTISTA;
+    
+                empleado.push(nombreTransportista);
+                empleado.push(codigoRuta);
+                empleado.push(codigoEmpleado);
+                empleado.push(fechaRegistro);
+    
+                empleados.push(empleado);
+    
+            }
+
+            const headerString = 'Transportista,Ruta,CodigoEmpleado, FechaRegistro\n';
+            const rowString = empleados.map(d => `${d[0]},${d[1]},${d[2]},${d[3]}\n`).join('');
+
+            const csvString = `${headerString}${rowString}`;
+            const pathToWrite = `${RNFetchBlob.fs.dirs.DownloadDir}/dataTransportista.csv`;
+            // pathToWrite /storage/emulated/0/Download/data.csv
+            RNFetchBlob.fs
+                .writeFile(pathToWrite, csvString, 'utf8')
+                .then(() => {
+                console.log(`wrote file ${pathToWrite}`);
+                alert('descargado correctamente');
+                // wrote file /storage/emulated/0/Download/data.csv
+            }) .catch(error => console.error(error));
+    
+            
+        }
+    }
+
     const _alertIndex = (index) => {
         Alert.alert(`This is row ${index + 1}`);
     }
@@ -130,20 +183,16 @@ export const ExportDataEmpleados = ({navigation}) =>{
         
         for(let index = 0; index < cantidad; index++){
 
-            //console.log(listFechas[index].FECHA_REGISTRO);
             fecha = [];
             let fechaRegistro      = listFechas[index].FECHA_REGISTRO;
-
             fecha.push(fechaRegistro);
-            fecha.push(1);
-            console.log(fecha);
+            fecha.push(1);                  //De relleno, aca lo opaca el boton
+
             fechasRegistros.push(fecha);
-            console.log(fechasRegistros);
         }
 
-
         const element = (data, index) => (
-            <TouchableOpacity onPress={() => _alertIndex(index)}>
+            <TouchableOpacity onPress={() => exportDataFecha(data) }>
               <View style={styles.btn}>
                 <Text style={styles.btnText}>button</Text>
               </View>
@@ -157,6 +206,7 @@ export const ExportDataEmpleados = ({navigation}) =>{
                     {/* <Rows data={fechasRegistros} style={styles.tableBody} textStyle={styles.tableBody} /> */}
                     {
                         fechasRegistros.map((rowData, index) => (
+
                             <TableWrapper key={index} style={styles.row}>
                               {
                                 rowData.map((cellData, cellIndex) => (
@@ -164,6 +214,7 @@ export const ExportDataEmpleados = ({navigation}) =>{
                                 ))
                               }
                             </TableWrapper>
+
                           ))
                     }
                 </Table>
