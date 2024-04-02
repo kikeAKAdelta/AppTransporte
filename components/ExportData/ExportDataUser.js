@@ -41,8 +41,10 @@ export const ExportDataEmpleados = ({navigation}) =>{
                     FROM 
                         TRANSPORTE_DETALLE TD
                     WHERE
-                        TD.FECHA_REGISTRO = '${fecha}'
+                    strftime('%Y-%m-%d', TD.FECHA_REGISTRO) = '${fecha}'
         `
+
+        console.log(sql);
 
         db.transaction(txn => {
             txn.executeSql(
@@ -82,7 +84,8 @@ export const ExportDataEmpleados = ({navigation}) =>{
         /**Sql que obtiene todos las fechas de registros de empleados unicos */
         const sql = `SELECT
                         DISTINCT
-                        strftime('%d/%m/%Y', \`FECHA_REGISTRO\`) FECHA_REGISTRO
+                       -- strftime('%d/%m/%Y', \`FECHA_REGISTRO\`) FECHA_REGISTRO
+                        strftime('%Y-%m-%d', \`FECHA_REGISTRO\`) FECHA_REGISTRO
                     FROM 
                         TRANSPORTE_DETALLE
         `;
@@ -127,9 +130,14 @@ export const ExportDataEmpleados = ({navigation}) =>{
      */
     const exportDataFecha = (fecha) =>{
 
-        getListaEmpleados(fecha);
+        console.log(fecha);
+        setListEmpleados([]);
+
+        getListaEmpleados(fecha);       //Debo de hacer que ingrese de manera correcta cuando lis empleado tenga informacion, utilizare useffect
 
         if(listEmpleados.length > 0){
+
+            console.log('Ingreso al metodo de exportacion');
 
             let empleados   = [];
             let empleado    = [];
@@ -156,18 +164,64 @@ export const ExportDataEmpleados = ({navigation}) =>{
             const rowString = empleados.map(d => `${d[0]},${d[1]},${d[2]},${d[3]}\n`).join('');
 
             const csvString = `${headerString}${rowString}`;
-            const pathToWrite = `${RNFetchBlob.fs.dirs.DownloadDir}/dataTransportista.csv`;
+            const pathToWrite = `${RNFetchBlob.fs.dirs.DownloadDir}/dataTransportista_${fecha}.csv`;
             // pathToWrite /storage/emulated/0/Download/data.csv
             RNFetchBlob.fs
-                .writeFile(pathToWrite, csvString, 'utf8')
-                .then(() => {
+            .writeFile(pathToWrite, csvString, 'utf8')
+            .then(() => {
+
                 console.log(`wrote file ${pathToWrite}`);
                 alert('descargado correctamente');
                 // wrote file /storage/emulated/0/Download/data.csv
+
+
             }) .catch(error => console.error(error));
     
             
         }
+    }
+
+    /**
+     * Funcion encargada de poder enviar la informacion a DropBox
+     */
+    const sendDataDropbox = () =>{
+
+        const PATH_TO_THE_FILE = `${RNFetchBlob.fs.dirs.DownloadDir}/dataTransportista.csv`;
+
+        /**El beare lo obtengo de dropbox donde he creado mi proyecto como desarrollador */
+        const bearerTkn = ``;
+
+        /**La URL de envio para desarrollador de Dropbox siempre debe de ser esa URL (App Console)
+         * de acuerdo al BearerToken nuestro archivo se sube en el proyecto correspondiente
+         * Para consultar el archivo subido con nombre 'miarchivo.csv' 
+         * Nuestro archivo creado en el dispositivo movil lo obtenemos desde las descargas de acuerdo al PathFile
+         */
+        RNFetchBlob.fetch(
+            "POST",
+            "https://content.dropboxapi.com/2/files/upload",
+            {
+                // dropbox upload headers
+                Authorization: `Bearer ${bearerTkn}`,
+                "Dropbox-API-Arg": JSON.stringify({
+                    path: "/miarchivo3.csv",
+                    mode: "add",
+                    autorename: true,
+                    mute: false,
+                }), //Descomentar estas lineas despues
+                "Content-Type": "application/octet-stream",
+                // Change BASE64 encoded data to a file path with prefix `RNFetchBlob-file://`.
+                // Or simply wrap the file path with RNFetchBlob.wrap().
+            },
+            RNFetchBlob.wrap(PATH_TO_THE_FILE)
+        )
+        .then((res) => {
+            console.log(res.text());
+            alert('Archivo Subido Correctamente');
+        })
+        .catch((err) => {
+            // error handling ..
+            console.log('Error');
+        });
     }
 
     const _alertIndex = (index) => {
@@ -186,10 +240,12 @@ export const ExportDataEmpleados = ({navigation}) =>{
             fecha = [];
             let fechaRegistro      = listFechas[index].FECHA_REGISTRO;
             fecha.push(fechaRegistro);
-            fecha.push(1);                  //De relleno, aca lo opaca el boton
+            fecha.push(fechaRegistro);                  //De relleno, aca lo opaca el boton
 
             fechasRegistros.push(fecha);
         }
+
+        console.log(fechasRegistros);
 
         const element = (data, index) => (
             <TouchableOpacity onPress={() => exportDataFecha(data) }>
@@ -201,7 +257,8 @@ export const ExportDataEmpleados = ({navigation}) =>{
 
         const thead = ['FECHA REGISTRO', 'EXPORTAR'];
 
-        tableComponent = <Table borderStyle={{borderWidth: 2, borderColor: '#c8e1ff'}}>
+        tableComponent = 
+            <Table borderStyle={{borderWidth: 2, borderColor: '#c8e1ff'}}>
                     <Row data={thead} style={styles.head} textStyle={styles.textHead}/>
                     {/* <Rows data={fechasRegistros} style={styles.tableBody} textStyle={styles.tableBody} /> */}
                     {
@@ -210,7 +267,7 @@ export const ExportDataEmpleados = ({navigation}) =>{
                             <TableWrapper key={index} style={styles.row}>
                               {
                                 rowData.map((cellData, cellIndex) => (
-                                  <Cell key={cellIndex} data={cellIndex === 1 ? element(cellData, index) : cellData} textStyle={styles.tableBody}/>
+                                  <Cell key={cellIndex} data={cellIndex === 1 ? element(cellData, cellIndex) : cellData} textStyle={styles.tableBody}/>
                                 ))
                               }
                             </TableWrapper>
