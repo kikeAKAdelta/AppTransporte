@@ -16,12 +16,17 @@ export const ExportDataEmpleados = ({navigation}) =>{
 
     const [ listEmpleados, setListEmpleados ] = useState([]);
     const [ listFechas, setListFechas ] = useState([]);
+    const [ miDate, setMiDate ] = useState('');
 
     let tableComponent = <Table></Table>;
 
     useEffect(() =>{
         getListFechasRegistros();
     }, []);
+
+    useEffect(() => {
+        exportDataFecha(miDate);
+    }, [listEmpleados]);
 
     /**
      * Funcion encargada de obtener la lista de empleados registrados en sistema.
@@ -63,15 +68,18 @@ export const ExportDataEmpleados = ({navigation}) =>{
                             results.push(item);
                         }
 
+                        setMiDate(fecha);
                         setListEmpleados(results);
                         console.log('Empleados obtenidos correctamente!');
                     }else{
+                        setMiDate('');
                         console.log('No se encontraron empleados registrados');
                     }
                 },
                 error => {
-                console.log("Error obteniendo lista de empleados registrados " + error.message);
-            }
+                    setMiDate('');
+                    console.log("Error obteniendo lista de empleados registrados " + error.message);
+                }
             )
         });
     }
@@ -128,13 +136,9 @@ export const ExportDataEmpleados = ({navigation}) =>{
     /**
      * Funcion encargada de crear un documento excel en el dispositivo para poder lo exportar de acuerdo a la fecha en concreto
      */
-    const exportDataFecha = (fecha) =>{
+    const exportDataFecha = (fecha) => {
 
-        console.log(fecha);
-        setListEmpleados([]);
-
-        getListaEmpleados(fecha);       //Debo de hacer que ingrese de manera correcta cuando lis empleado tenga informacion, utilizare useffect
-
+        //getListaEmpleados(fecha);       //Debo de hacer que ingrese de manera correcta cuando lis empleado tenga informacion, utilizare useffect
         if(listEmpleados.length > 0){
 
             console.log('Ingreso al metodo de exportacion');
@@ -163,8 +167,10 @@ export const ExportDataEmpleados = ({navigation}) =>{
             const headerString = 'Transportista,Ruta,CodigoEmpleado, FechaRegistro\n';
             const rowString = empleados.map(d => `${d[0]},${d[1]},${d[2]},${d[3]}\n`).join('');
 
+            let nuevaFecha = fecha.replace('-', '');
+
             const csvString = `${headerString}${rowString}`;
-            const pathToWrite = `${RNFetchBlob.fs.dirs.DownloadDir}/dataTransportista_${fecha}.csv`;
+            const pathToWrite = `${RNFetchBlob.fs.dirs.DownloadDir}/dataTransportista_${nuevaFecha}.csv`;
             // pathToWrite /storage/emulated/0/Download/data.csv
             RNFetchBlob.fs
             .writeFile(pathToWrite, csvString, 'utf8')
@@ -248,7 +254,7 @@ export const ExportDataEmpleados = ({navigation}) =>{
         console.log(fechasRegistros);
 
         const element = (data, index) => (
-            <TouchableOpacity onPress={() => exportDataFecha(data) }>
+            <TouchableOpacity onPress={() => getListaEmpleados(data) }>
               <View style={styles.btn}>
                 <Text style={styles.btnText}>button</Text>
               </View>
