@@ -3,6 +3,7 @@ import { openDatabase, SQLiteDatabase} from "react-native-sqlite-storage";
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import RNFetchBlob from 'rn-fetch-blob';
 import { Table, TableWrapper, Row, Rows, Col, Cols, Cell } from 'react-native-table-component';
+import { authorize } from 'react-native-app-auth';
 
 
 import {
@@ -17,6 +18,7 @@ export const ExportDataEmpleados = ({navigation}) =>{
     const [ listEmpleados, setListEmpleados ] = useState([]);
     const [ listFechas, setListFechas ] = useState([]);
     const [ miDate, setMiDate ] = useState('');
+    const [ sesionDropbox, setSesionDropbox ] = useState({});
 
     let tableComponent = <Table></Table>;
 
@@ -187,6 +189,60 @@ export const ExportDataEmpleados = ({navigation}) =>{
         }
     }
 
+    const loginDropBox = async () =>{
+
+        const config = {
+            clientId: 'ibutx9ryou5aygl',
+            clientSecret: '1w3k80p859d5wvs',
+            redirectUrl: 'com.example.app://authorize',
+            scopes: [],
+            serviceConfiguration: {
+              authorizationEndpoint: 'https://www.dropbox.com/oauth2/authorize',
+              tokenEndpoint: `https://www.dropbox.com/oauth2/token`,
+            },
+            /**additionalParameters: {
+              token_access_type: 'offline',
+            },**/
+          };
+
+         try{
+            const authState = await authorize(config);
+            //const dropboxUID = authState.tokenAdditionalParameters.account_id;
+            const dropboxUID = authState.accessToken;
+
+            console.log(authState);
+            setSesionDropbox(dropboxUID);
+          }catch(error){
+            console.log(error);
+          }
+          
+          // Log in to get an authentication token
+          
+
+          /**authorize(config)
+            .then(res => {
+                const sesion = {
+                    accessToken: res.accessToken,
+                    payload: decodeJWTPayload(res.accessToken),
+                    header: decodeJWTHeader(res.accessToken),
+                };
+
+                setSesionDropbox(s);
+                
+                //return EncryptedStorage.setItem('user_session', JSON.stringify(s));
+            })
+            .catch(err => {
+                console.log(err);
+                //setProgress(false);
+            });**/
+    }
+
+    const getSesion = () =>{
+        console.log(sesionDropbox);
+    }
+
+      
+
     /**
      * Funcion encargada de poder enviar la informacion a DropBox
      */
@@ -195,7 +251,8 @@ export const ExportDataEmpleados = ({navigation}) =>{
         const PATH_TO_THE_FILE = `${RNFetchBlob.fs.dirs.DownloadDir}/dataTransportista.csv`;
 
         /**El beare lo obtengo de dropbox donde he creado mi proyecto como desarrollador */
-        const bearerTkn = ``;
+        //const bearerTkn = ``;
+        const bearerTkn = sesionDropbox;
 
         /**La URL de envio para desarrollador de Dropbox siempre debe de ser esa URL (App Console)
          * de acuerdo al BearerToken nuestro archivo se sube en el proyecto correspondiente
@@ -228,10 +285,6 @@ export const ExportDataEmpleados = ({navigation}) =>{
             // error handling ..
             console.log('Error');
         });
-    }
-
-    const _alertIndex = (index) => {
-        Alert.alert(`This is row ${index + 1}`);
     }
 
     if(listFechas.length > 0){
@@ -286,6 +339,10 @@ export const ExportDataEmpleados = ({navigation}) =>{
 
     return (
         <View>
+            <View>
+                <Button title="Iniciar Sesion" onPress={loginDropBox} />
+                <Button title="Imp Sesion" onPress={getSesion} />
+            </View>
             {tableComponent}
         </View>
     );
