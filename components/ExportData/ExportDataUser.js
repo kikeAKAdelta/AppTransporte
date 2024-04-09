@@ -182,6 +182,9 @@ export const ExportDataEmpleados = ({navigation}) =>{
                 alert('descargado correctamente');
                 // wrote file /storage/emulated/0/Download/data.csv
 
+                setTimeout(function(){
+                    sendDataDropbox(nuevaFecha);
+                }, 2000);
 
             }) .catch(error => console.error(error));
     
@@ -241,18 +244,19 @@ export const ExportDataEmpleados = ({navigation}) =>{
         console.log(sesionDropbox);
     }
 
-      
-
     /**
      * Funcion encargada de poder enviar la informacion a DropBox
      */
-    const sendDataDropbox = () =>{
+    const sendDataDropbox = (fechaExport) =>{
 
-        const PATH_TO_THE_FILE = `${RNFetchBlob.fs.dirs.DownloadDir}/dataTransportista.csv`;
+        console.log('fecha export sendataDropbox', fechaExport);
+
+        const PATH_TO_THE_FILE = `${RNFetchBlob.fs.dirs.DownloadDir}/dataTransportista_${fechaExport}.csv`;
 
         /**El beare lo obtengo de dropbox donde he creado mi proyecto como desarrollador */
         //const bearerTkn = ``;
         const bearerTkn = sesionDropbox;
+        console.log(bearerTkn);
 
         /**La URL de envio para desarrollador de Dropbox siempre debe de ser esa URL (App Console)
          * de acuerdo al BearerToken nuestro archivo se sube en el proyecto correspondiente
@@ -266,7 +270,7 @@ export const ExportDataEmpleados = ({navigation}) =>{
                 // dropbox upload headers
                 Authorization: `Bearer ${bearerTkn}`,
                 "Dropbox-API-Arg": JSON.stringify({
-                    path: "/miarchivo3.csv",
+                    path: `/dataTransportista_${fechaExport}.csv.csv`,
                     mode: "add",
                     autorename: true,
                     mute: false,
@@ -293,7 +297,6 @@ export const ExportDataEmpleados = ({navigation}) =>{
         let cantidad = listFechas.length;
         let fecha = [];
 
-        
         for(let index = 0; index < cantidad; index++){
 
             fecha = [];
@@ -306,12 +309,17 @@ export const ExportDataEmpleados = ({navigation}) =>{
 
         console.log(fechasRegistros);
 
-        const element = (data, index) => (
+        /**const element = (data, index) => (
             <TouchableOpacity onPress={() => getListaEmpleados(data) }>
               <View style={styles.btn}>
                 <Text style={styles.btnText}>button</Text>
               </View>
             </TouchableOpacity>
+        );**/
+
+        const element = (data, index) => (
+            <Button title="Enviar" onPress={() => getListaEmpleados(data) } />
+              
         );
 
         const thead = ['FECHA REGISTRO', 'EXPORTAR'];
@@ -333,7 +341,7 @@ export const ExportDataEmpleados = ({navigation}) =>{
 
                           ))
                     }
-                </Table>
+            </Table>
         ;
     }
 
