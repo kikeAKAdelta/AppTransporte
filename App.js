@@ -7,11 +7,10 @@ import { createDrawerNavigator } from '@react-navigation/drawer';
 
 import { connectToDatabase, createTables } from './database/AppTransporteDB.js';
 import { loadTransportista, loadRutas, loadTransportistaRutas } from './database/Transportista.js';
-import { DropDownTransportista } from './components/dropdown/dropdown.js';
+import { DropDownTransportista } from './components/dropdown/CmbTransportista.js';
 import { RegistroEmpleado } from './components/Empleado/RegistroEmpleado.js';
 import { ConsultaEmpleado } from './components/Empleado/ConsultaEmpleado.js';
 import { ExportDataEmpleados } from './components/ExportData/ExportDataUser.js';
-
 
 import {
   SafeAreaView,
@@ -111,10 +110,7 @@ const App = () => {
         {/* <Stack.Screen name="ConsultaEmpleado" component={ConsultaEmpleado} option={{title: 'Registro'}} /> */}
 
       </Stack.Navigator>
-
-      
     </NavigationContainer>
-
     
   );
   

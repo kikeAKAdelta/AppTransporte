@@ -73,7 +73,7 @@ export const createTables = (db) =>{
             NOMBRE_TRANSPORTISTA TEXT(150),
             PLACA TEXT(150),
             CODIGO_EMPLEADO TEXT(6),
-            FECHA_REGISTRO DATETIME DEFAULT CURRENT_TIMESTAMP
+            FECHA_REGISTRO DATETIME DEFAULT (DATETIME('NOW', 'LOCALTIME'))
         )
     `;
 
