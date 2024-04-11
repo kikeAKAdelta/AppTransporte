@@ -25,7 +25,13 @@ import {
 
 const Stack = createNativeStackNavigator();
 
-const db =  openDatabase({name: 'AppTransporteDB.db'});
+const db  = openDatabase(
+    {name: 'Tranporte.db', createFromLocation: '~www/Tranporte.db'},
+    () => { console.log('Conexion a la Base de Datos Exitosa New');},
+    (error) =>{
+        console.error(error);
+        throw Error("Error conexion a Base de Datos Local New");
+    });
 
 export const RegistroEmpleado = ({navigation, route}) =>{
 
@@ -45,20 +51,18 @@ export const RegistroEmpleado = ({navigation, route}) =>{
         const empleado = [
                 idTransportista
             ,   idRuta
-            ,   'Enrique Teste'
-            ,   'PLACA 001'
             ,   registroEmp
+            
         ];
 
         const insertQuery = `
             INSERT INTO TRANSPORTE_DETALLE 
                 (       ID_TRANSPORTISTA
                     ,   ID_RUTA
-                    ,   NOMBRE_TRANSPORTISTA
-                    ,   PLACA
                     ,   CODIGO_EMPLEADO
+                    ,   FECHA_REGISTRO
                 )
-            VALUES (?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, datetime('now','localtime'))
         `
 
         db.transaction(txn =>{
@@ -67,7 +71,10 @@ export const RegistroEmpleado = ({navigation, route}) =>{
                     empleado,
                     (sqlTxn, res) =>{
                         console.log('Empleado agregado correctamente!' + empleado);
+                        setRegistroEmp('');
                         alert('Empleado registrado correctamente');
+                        console.log('limpiado');
+                        //this.textInput.clear();
                     },
                     error =>{
                         console.log("Error agregando empleado " + error.message);

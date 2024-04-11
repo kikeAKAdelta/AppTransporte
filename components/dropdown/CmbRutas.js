@@ -8,7 +8,13 @@ import {
 } from 'react-native';
 
 
-const db =  openDatabase({name: 'AppTransporteDB.db'});
+const db  = openDatabase(
+    {name: 'Tranporte.db', createFromLocation: '~Tranporte.db'},
+    () => { console.log('Conexion a la Base de Datos Exitosa New');},
+    (error) =>{
+        console.error(error);
+        throw Error("Error conexion a Base de Datos Local New");
+    });
 
 export const DropDownRutas = ({navigation, transport}) =>{
 

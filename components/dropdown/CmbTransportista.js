@@ -3,13 +3,20 @@ import {Node} from 'react';
 import RNPickerSelect from 'react-native-picker-select';
 import { openDatabase, SQLiteDatabase} from "react-native-sqlite-storage";
 import { DropDownRutas } from './CmbRutas.js';
+import { connectToDatabase } from './../../database/AppTransporteDB.js';
 
 
 import {
     StyleSheet,    Text,    useColorScheme,    View, Button
 } from 'react-native';
 
-const db =  openDatabase({name: 'AppTransporteDB.db'});
+const db  = openDatabase(
+    {name: 'Tranporte.db', createFromLocation: '~www/Tranporte.db', location: 'Library'},
+    () => { console.log('Conexion a la Base de Datos Exitosa New');},
+    (error) =>{
+        console.error(error);
+        throw Error("Error conexion a Base de Datos Local New");
+    });
 
 export const DropDownTransportista = ({navigation}) =>{
 
@@ -32,7 +39,7 @@ export const DropDownTransportista = ({navigation}) =>{
         db.transaction(txn => {
 
             txn.executeSql(
-                `SELECT * FROM TRANSPORTISTA`,
+                `SELECT ID_TRANSPORTISTA, NOMBRE, DUI, PLACA FROM TRANSPORTISTA`,
                 [],
                 (sqlTxn, res) => {
     

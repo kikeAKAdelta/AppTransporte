@@ -63,7 +63,7 @@ const Section = ({children, title}) => {
   );
 };
 
-let db              =  connectToDatabase();
+//let db              =  connectToDatabase();
 
 const App = () => {
   
@@ -72,10 +72,10 @@ const App = () => {
   const fetchData =  () => {
 
     let db                    = connectToDatabase();       //verificar luego
-    let tablasCreadas         = createTables(db);
+    /**let tablasCreadas         = createTables(db);
     let cargaRutas            = loadRutas(db);
     let cargaTransportRutas   = loadTransportistaRutas(db);
-    let cargaRealizada        = loadTransportista(db);
+    let cargaRealizada        = loadTransportista(db);**/
   }
 
   /**En el ciclo de vida del componente como funcion, se ejecuta despues del renderizado

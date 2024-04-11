@@ -4,11 +4,11 @@ import { openDatabase, SQLiteDatabase} from "react-native-sqlite-storage";
 export const connectToDatabase =  () =>{
 
     return openDatabase(
-        {name: 'AppTransporteDB.db', location: 'default'},
-        () => { console.log('Conexion a la Base de Datos Exitosa');},
+        {name: 'Tranporte.db', createFromLocation: '~www/Tranporte.db', location: 'Library'},
+        () => { console.log('Conexion a la Base de Datos Exitosa New');},
         (error) =>{
             console.error(error);
-            throw Error("Error conexion a Base de Datos Local");
+            throw Error("Error conexion a Base de Datos Local New");
         }
     );
 

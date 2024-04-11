@@ -11,7 +11,13 @@ import {
 } from 'react-native';
 
 const Stack = createNativeStackNavigator();
-const db =  openDatabase({name: 'AppTransporteDB.db'});
+const db  = openDatabase(
+    {name: 'Tranporte.db', createFromLocation: '~www/Tranporte.db'},
+    () => { console.log('Conexion a la Base de Datos Exitosa New');},
+    (error) =>{
+        console.error(error);
+        throw Error("Error conexion a Base de Datos Local New");
+    });
 
 export const ConsultaEmpleado = ({navigation}) =>{
 
@@ -34,7 +40,6 @@ export const ConsultaEmpleado = ({navigation}) =>{
                         ,   TD.ID_RUTA
                         ,   (SELECT CODIGO FROM RUTA WHERE ID_RUTA = TD.ID_RUTA) CODIGO_RUTA
                         ,   (SELECT DESCRIPCION FROM RUTA WHERE ID_RUTA = TD.ID_RUTA) DESCRIPCION_RUTA
-                        ,   TD.PLACA
                         ,   TD.CODIGO_EMPLEADO
                         ,   TD.FECHA_REGISTRO
                     FROM 
