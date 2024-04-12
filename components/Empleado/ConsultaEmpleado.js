@@ -25,7 +25,7 @@ export const ConsultaEmpleado = ({navigation}) =>{
 
     useEffect(() =>{
         getListaEmpleados();
-    }, []);
+    }, [listEmpleados]);
 
 
     /**

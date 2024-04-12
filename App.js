@@ -11,6 +11,7 @@ import { DropDownTransportista } from './components/dropdown/CmbTransportista.js
 import { RegistroEmpleado } from './components/Empleado/RegistroEmpleado.js';
 import { ConsultaEmpleado } from './components/Empleado/ConsultaEmpleado.js';
 import { ExportDataEmpleados } from './components/ExportData/ExportDataUser.js';
+import { LoginApp } from './components/login/Login.js';
 
 import {
   SafeAreaView,
@@ -32,8 +33,7 @@ import {
 } from 'react-native/Libraries/NewAppScreen';
 
 const Drawer = createDrawerNavigator();
-const Stack = createNativeStackNavigator();
-
+const Stack  = createNativeStackNavigator();
 
 /* $FlowFixMe[missing-local-annot] The type annotation(s) required by Flow's
  * LTI update could not be added via codemod */
@@ -100,6 +100,7 @@ const App = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator>
+        <Stack.Screen name="Login" component={LoginApp} option={{title: 'Login'}} />
         <Stack.Screen 
           name="Menu" 
           component={Menu} 
