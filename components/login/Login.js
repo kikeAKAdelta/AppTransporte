@@ -2,7 +2,9 @@ import 'react-native-gesture-handler';
 import * as React from 'react';
 import { useEffect, useCallback, useState } from 'react';
 import { openDatabase, SQLiteDatabase} from "react-native-sqlite-storage";
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useIsFocused } from '@react-navigation/native';
+import { createSessionUser, existSessionUser } from './Session.js';
 
 import {
     StyleSheet,    Text,    useColorScheme,    View, Button, TextInput
@@ -14,13 +16,14 @@ const db  = openDatabase(
     (error) =>{
         console.error(error);
         throw Error("Error conexion a Base de Datos Local New");
-    });
-
+    }
+);
 
 export const LoginApp = ({navigation}) =>{
 
     const [ usuario  , setUsuario ] = useState('');
     const [ password , setPassword ] = useState('');
+    const isFocused = useIsFocused();               /**Cuando tome el foco, si cambia recargara la funcion en useEffect */
 
     const loginUsuario = () =>{
 
@@ -51,7 +54,8 @@ export const LoginApp = ({navigation}) =>{
     
                     if (len > 0) {
                         alert('Sesion iniciada correctamente');
-                        navigation.navigate('Menu', {})
+                        createSessionUser(usuario);
+                        navigation.navigate('Menu', {navigation})
                     }else{
                         alert('Credenciales incorrectas');
                     }
@@ -64,6 +68,16 @@ export const LoginApp = ({navigation}) =>{
 
 
     }
+
+    useEffect(() => {
+
+        const fetchData = async () =>{
+            await existSessionUser({navigation});
+        }
+
+        fetchData();
+
+    }, [isFocused]);
 
     return(
         <View>

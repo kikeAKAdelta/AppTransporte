@@ -10,6 +10,7 @@
     "lint": "eslint ."
   },
   "dependencies": {
+    "@react-native-async-storage/async-storage": "^1.23.1",
     "@react-native-google-signin/google-signin": "^10.1.2",
     "@react-native-picker/picker": "^2.6.1",
     "@react-navigation/drawer": "^6.6.15",

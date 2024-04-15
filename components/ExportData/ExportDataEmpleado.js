@@ -62,7 +62,8 @@ export const ExportDataEmpleados = ({navigation}) =>{
                         }
 
                         setListEmpleados(results);
-                        console.log('Empleados obtenidos correctamente!');
+                        console.log('Empleados obtenidos correctamente 22!');
+                        
                     }else{
                         console.log('No se encontraron empleados registrados');
                     }

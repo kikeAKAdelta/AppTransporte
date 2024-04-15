@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { openDatabase, SQLiteDatabase} from "react-native-sqlite-storage";
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
+import {useIsFocused} from '@react-navigation/native';
 import { Table, TableWrapper, Row, Rows, Col, Cols, Cell } from 'react-native-table-component';
 import RNFetchBlob from 'rn-fetch-blob';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
@@ -11,22 +12,26 @@ import {
 } from 'react-native';
 
 const Stack = createNativeStackNavigator();
+
 const db  = openDatabase(
     {name: 'Tranporte.db', createFromLocation: '~www/Tranporte.db'},
     () => { console.log('Conexion a la Base de Datos Exitosa New');},
     (error) =>{
         console.error(error);
         throw Error("Error conexion a Base de Datos Local New");
-    });
+    }
+);
 
-export const ConsultaEmpleado = ({navigation}) =>{
+export const ConsultaEmpleado = ({navigation, route}) =>{
+
+    const isFocused = useIsFocused();               /**Cuando tome el foco, si cambia recargara la funcion en useEffect */
 
     const [ listEmpleados, setListEmpleados ] = useState([]);
 
     useEffect(() =>{
         getListaEmpleados();
-    }, [listEmpleados]);
-
+        console.log('valor contador',route.params.contador);
+    }, [isFocused]);
 
     /**
      * Funcion encargada de obtener la lista de empleados registrados en sistema.
@@ -64,7 +69,7 @@ export const ConsultaEmpleado = ({navigation}) =>{
                         }
 
                         setListEmpleados(results);
-                        console.log('Empleados obtenidos correctamente!');
+                        console.log('Empleados obtenidos correctamente en consulta empleado!');
                     }else{
                         console.log('No se encontraron empleados registrados');
                     }
@@ -214,8 +219,6 @@ export const ConsultaEmpleado = ({navigation}) =>{
 
     let table = <Table></Table>;
 
- 
-
     if(listEmpleados.length > 0){
 
         let empleados   = [];
@@ -249,14 +252,6 @@ export const ConsultaEmpleado = ({navigation}) =>{
 
     return (
         <View>
-            <Button
-                title="Exportar"
-                onPress= {exportData}
-            />
-            <Button
-                title="Send Data DropBox"
-                onPress= {sendData}
-            />
             {table}
         </View>
     );

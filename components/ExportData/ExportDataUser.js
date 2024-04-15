@@ -4,7 +4,7 @@ import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import RNFetchBlob from 'rn-fetch-blob';
 import { Table, TableWrapper, Row, Rows, Col, Cols, Cell } from 'react-native-table-component';
 import { authorize } from 'react-native-app-auth';
-
+import { createSessionDropbox, getSessionDropbox, existSessionUser } from './../login/Session.js';
 
 import {
     StyleSheet,    Text,    useColorScheme,    View, Button, TouchableOpacity, Alert
@@ -77,7 +77,7 @@ export const ExportDataEmpleados = ({navigation}) =>{
 
                         setMiDate(fecha);
                         setListEmpleados(results);
-                        console.log('Empleados obtenidos correctamente!');
+                        console.log('Empleados obtenidos correctamente en export user!');
                     }else{
                         setMiDate('');
                         console.log('No se encontraron empleados registrados');
@@ -219,6 +219,7 @@ export const ExportDataEmpleados = ({navigation}) =>{
             const dropboxUID = authState.accessToken;
 
             console.log(authState);
+            createSessionDropbox(dropboxUID);
             setSesionDropbox(dropboxUID);
           }catch(error){
             console.log(error);
@@ -245,14 +246,16 @@ export const ExportDataEmpleados = ({navigation}) =>{
             });**/
     }
 
-    const getSesion = () =>{
+    const getSesion = async () =>{
         console.log(sesionDropbox);
+        tokenSesion = await getSessionDropbox()
+        console.log(tokenSesion);
     }
 
     /**
      * Funcion encargada de poder enviar la informacion a DropBox
      */
-    const sendDataDropbox = (fechaExport) =>{
+    const sendDataDropbox = async (fechaExport) =>{
 
         console.log('fecha export sendataDropbox', fechaExport);
 
@@ -260,40 +263,61 @@ export const ExportDataEmpleados = ({navigation}) =>{
 
         /**El beare lo obtengo de dropbox donde he creado mi proyecto como desarrollador */
         //const bearerTkn = ``;
-        const bearerTkn = sesionDropbox;
+        const bearerTkn = await getSessionDropbox();
         console.log(bearerTkn);
 
-        /**La URL de envio para desarrollador de Dropbox siempre debe de ser esa URL (App Console)
-         * de acuerdo al BearerToken nuestro archivo se sube en el proyecto correspondiente
-         * Para consultar el archivo subido con nombre 'miarchivo.csv' 
-         * Nuestro archivo creado en el dispositivo movil lo obtenemos desde las descargas de acuerdo al PathFile
-         */
-        RNFetchBlob.fetch(
-            "POST",
-            "https://content.dropboxapi.com/2/files/upload",
-            {
-                // dropbox upload headers
-                Authorization: `Bearer ${bearerTkn}`,
-                "Dropbox-API-Arg": JSON.stringify({
-                    path: `/dataTransportista_${fechaExport}.csv.csv`,
-                    mode: "add",
-                    autorename: true,
-                    mute: false,
-                }), //Descomentar estas lineas despues
-                "Content-Type": "application/octet-stream",
-                // Change BASE64 encoded data to a file path with prefix `RNFetchBlob-file://`.
-                // Or simply wrap the file path with RNFetchBlob.wrap().
-            },
-            RNFetchBlob.wrap(PATH_TO_THE_FILE)
-        )
-        .then((res) => {
-            console.log(res.text());
-            alert('Archivo Subido Correctamente');
-        })
-        .catch((err) => {
-            // error handling ..
-            console.log('Error');
-        });
+        if(bearerTkn != ''){
+
+            /**La URL de envio para desarrollador de Dropbox siempre debe de ser esa URL (App Console)
+             * de acuerdo al BearerToken nuestro archivo se sube en el proyecto correspondiente
+             * Para consultar el archivo subido con nombre 'miarchivo.csv' 
+             * Nuestro archivo creado en el dispositivo movil lo obtenemos desde las descargas de acuerdo al PathFile
+             */
+            RNFetchBlob.fetch(
+                "POST",
+                "https://content.dropboxapi.com/2/files/upload",
+                {
+                    // dropbox upload headers
+                    Authorization: `Bearer ${bearerTkn}`,
+                    "Dropbox-API-Arg": JSON.stringify({
+                        path: `/dataTransportista_${fechaExport}.csv`,
+                        mode: "add",
+                        autorename: true,
+                        mute: false,
+                    }), //Descomentar estas lineas despues
+                    "Content-Type": "application/octet-stream",
+                    // Change BASE64 encoded data to a file path with prefix `RNFetchBlob-file://`.
+                    // Or simply wrap the file path with RNFetchBlob.wrap().
+                },
+                RNFetchBlob.wrap(PATH_TO_THE_FILE)
+            )
+            .then((res) => {
+                console.log(res);
+                console.log(res.respInfo.status);
+
+                let statusResponse = res.respInfo.status;
+
+                if(statusResponse != 200){
+
+                    if(statusResponse == 401){
+                        alert('No se pudo cargar en la nube, favor iniciar sesion en Dropbox');
+                        return;
+                    }
+                }
+
+                alert('Archivo Subido Correctamente');
+            })
+            .catch((err) => {
+                // error handling ..
+                console.log('Error');
+                alert('Favor inicie sesion en Dropbox');
+
+            });
+        }else{
+            alert('Favor inicie sesion en Dropbox');
+        }
+
+        
     }
 
     if(listFechas.length > 0){

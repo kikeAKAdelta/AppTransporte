@@ -4,7 +4,7 @@ import RNPickerSelect from 'react-native-picker-select';
 import { openDatabase, SQLiteDatabase} from "react-native-sqlite-storage";
 import { DropDownRutas } from './CmbRutas.js';
 import { connectToDatabase } from './../../database/AppTransporteDB.js';
-
+import { createSessionUser, getSessionUser, existSessionUser } from './../login/Session.js';
 
 import {
     StyleSheet,    Text,    useColorScheme,    View, Button
@@ -16,13 +16,14 @@ const db  = openDatabase(
     (error) =>{
         console.error(error);
         throw Error("Error conexion a Base de Datos Local New");
-    });
+    }
+);
 
 export const DropDownTransportista = ({navigation}) =>{
 
-    const [ listTransportista, setListTransportista] = useState([]);
-    const [ selectedValue, setSelectedValue ] = useState(null);
-    const [ itemRuta, setItemRuta ] = useState(null);
+    const [ listTransportista   , setListTransportista] = useState([]);
+    const [ selectedValue       , setSelectedValue ] = useState(null);
+    const [ itemRuta            , setItemRuta ] = useState(null);
 
     const placeholder = {
         label: '[ SELECCIONE ]',
@@ -32,14 +33,24 @@ export const DropDownTransportista = ({navigation}) =>{
     let options = [];
 
     useEffect(() =>{
-        obtenerTransportistas();
+        obtenerTransportistas({navigation});
     }, []);
 
-    const obtenerTransportistas = () =>{
+    const obtenerTransportistas = async ({navigation}) =>{
+
+        let userSession = await getSessionUser({navigation});         /**Obtenemos variable de Session */
+        let filterUser  = '';
+
+        if(userSession != ''){
+            filterUser = ` WHERE CODIGO_USUARIO = '${userSession}'`;
+        }
+
+        console.log(userSession);
+
         db.transaction(txn => {
 
             txn.executeSql(
-                `SELECT ID_TRANSPORTISTA, NOMBRE, DUI, PLACA FROM TRANSPORTISTA`,
+                `SELECT ID_TRANSPORTISTA, NOMBRE, DUI, PLACA FROM TRANSPORTISTA ${filterUser}`,
                 [],
                 (sqlTxn, res) => {
     
@@ -88,8 +99,7 @@ export const DropDownTransportista = ({navigation}) =>{
                                 onValueChange={(value) => setSelectedValue(value)}
                                 style={customPickerStyles}
                                 useNativeAndroidPickerStyle = {false}
-                            />
-                        
+                            />  
         ;
 
         optionSelected = <Text>{selectedValue && <Text>Selected: {selectedValue}</Text>} </Text>;
