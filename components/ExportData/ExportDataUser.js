@@ -5,6 +5,7 @@ import RNFetchBlob from 'rn-fetch-blob';
 import { Table, TableWrapper, Row, Rows, Col, Cols, Cell } from 'react-native-table-component';
 import { authorize } from 'react-native-app-auth';
 import { createSessionDropbox, getSessionDropbox, existSessionUser } from './../login/Session.js';
+import Mailer from "react-native-mail";
 
 import {
     StyleSheet,    Text,    useColorScheme,    View, Button, TouchableOpacity, Alert
@@ -35,6 +36,28 @@ export const ExportDataEmpleados = ({navigation}) =>{
     useEffect(() => {
         exportDataFecha(miDate);
     }, [listEmpleados]);
+
+    const sendMail = () =>{
+
+        const PATH_TO_THE_FILE = `${RNFetchBlob.fs.dirs.DownloadDir}/dataTransportista_202404-14.csv`;
+
+        Mailer.mail({
+            subject: 'Lets Code',
+            recipients: ['kike04arevalo@gmail.com'],
+            body: 'Hi There',
+            isHTML: false,
+            attachments: [{
+                path: PATH_TO_THE_FILE,
+                type: 'csv', // Mime Type: jpg, png, doc, ppt, html, pdf, csv
+            }]
+            },(error, event) => {
+            if(error!=undefined){
+                alert(AppConfig.AppName + ' cannot open default Email App.');
+            }
+        });
+            
+            
+    }
 
     /**
      * Funcion encargada de obtener la lista de empleados registrados en sistema.
@@ -252,6 +275,7 @@ export const ExportDataEmpleados = ({navigation}) =>{
         console.log(tokenSesion);
     }
 
+
     /**
      * Funcion encargada de poder enviar la informacion a DropBox
      */
@@ -379,6 +403,7 @@ export const ExportDataEmpleados = ({navigation}) =>{
             <View>
                 <Button title="Iniciar Sesion" onPress={loginDropBox} />
                 <Button title="Imp Sesion" onPress={getSesion} />
+                <Button title="Send Mail" onPress={sendMail} /> 
             </View>
             {tableComponent}
         </View>
