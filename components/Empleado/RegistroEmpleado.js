@@ -73,8 +73,6 @@ export const RegistroEmpleado = ({navigation, route}) =>{
                         console.log('Empleado agregado correctamente!' + empleado);
                         setRegistroEmp('');
                         alert('Empleado registrado correctamente');
-                        console.log('limpiado');
-                        //this.textInput.clear();
                     },
                     error =>{
                         console.log("Error agregando empleado " + error.message);
@@ -95,6 +93,8 @@ export const RegistroEmpleado = ({navigation, route}) =>{
                     onFocus = { () => setIsFocused(true)}
                     onChangeText = { (text) => setRegistroEmp(text) }
                     keyboardType="numeric"
+                    value = {registroEmp}
+                    autoFocus = {true}
                 />
                 <Button title="Registrar Empleado" onPress={ saveEmpleado } />
             </View>

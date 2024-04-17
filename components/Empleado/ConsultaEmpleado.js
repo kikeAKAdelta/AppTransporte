@@ -8,7 +8,7 @@ import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import { google } from 'googleapis';
 
 import {
-    StyleSheet,    Text,    useColorScheme,    View, Button
+    StyleSheet,    Text,    useColorScheme,    View, Button, ScrollView
 } from 'react-native';
 
 const Stack = createNativeStackNavigator();
@@ -243,10 +243,24 @@ export const ConsultaEmpleado = ({navigation, route}) =>{
         }
 
         const thead = ['TRANSPORT', 'RUTA', 'COD EMP', 'FEC REG'];
-        table = <Table borderStyle={{borderWidth: 2, borderColor: '#c8e1ff'}}>
-                    <Row data={thead} style={styles.head} textStyle={styles.textHead}/>
-                    <Rows data={empleados} style={styles.tableBody} textStyle={styles.tableBody} />
-                </Table>
+        table = 
+            <View>
+                <ScrollView horizontal={true}>
+                    <View>
+                        <Table borderStyle={{borderWidth: 2, borderColor: '#c8e1ff'}}>
+                            <Row data={thead} style={styles.head} textStyle={styles.textHead}/>
+                        </Table>
+
+                        <ScrollView style={styles.dataWrapper}>
+                            <Table borderStyle={{borderWidth: 2, borderColor: '#c8e1ff'}}>
+                                <Rows data={empleados} style={styles.tableBody}
+                                
+                                textStyle={styles.tableBody} />
+                            </Table>
+                        </ScrollView>
+                        </View>
+                </ScrollView>
+            </View>
         ;
     }
 
@@ -271,6 +285,11 @@ const styles = StyleSheet.create({
     tableBody:{
             color: 'black'
         ,   textAlign: 'center'
-    }
+        ,   borderCollapse: 'collapse'
+        ,   padding: 5
+    },
+    dataWrapper: { marginTop: -1 },
+    text: { textAlign: 'center', fontWeight: '100' },
+    container: { flex: 1, padding: 16, paddingTop: 30, backgroundColor: '#fff' },
     
   });

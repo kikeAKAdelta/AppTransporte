@@ -76,6 +76,8 @@ export const LoginApp = ({navigation}) =>{
         }
 
         fetchData();
+        setUsuario('');
+        setPassword('');
 
     }, [isFocused]);
 
@@ -94,6 +96,8 @@ export const LoginApp = ({navigation}) =>{
                     placeholderTextColor= '#000'
                     onChangeText = { (text) => setUsuario(text) }
                     keyboardType="numeric"
+                    value = {usuario}
+                    autoFocus={true}
                 />
             </View>
 
@@ -106,6 +110,7 @@ export const LoginApp = ({navigation}) =>{
                     onChangeText = { (text) => setPassword(text) }
                     keyboardType="numeric"
                     secureTextEntry={true}
+                    value = { password }
                 />
             </View>
 
