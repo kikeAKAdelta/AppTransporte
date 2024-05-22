@@ -217,7 +217,7 @@ export const SolicitudDetalleList = ({navigation, route}) =>{
             port: "465",
             ssl: true, // optional. if false, then TLS is enabled. Its true by default in android. In iOS TLS/SSL is determined automatically, and this field doesn't affect anything
             username: "kike04arevalo@gmail.com",
-            password: "znmhhugnczfcbmgm",
+            password: "",
             fromName: "kike04arevalo@gmail.com", // optional
             replyTo: "kike04arevalo@gmail.com", // optional
             recipients: "kike04arevalo@gmail.com",
