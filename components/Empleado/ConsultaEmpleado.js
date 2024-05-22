@@ -6,6 +6,7 @@ import { Table, TableWrapper, Row, Rows, Col, Cols, Cell } from 'react-native-ta
 import RNFetchBlob from 'rn-fetch-blob';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import { google } from 'googleapis';
+import Icon from 'react-native-vector-icons/FontAwesome5';
 
 import {
     StyleSheet,    Text,    useColorScheme,    View, Button, ScrollView
@@ -30,7 +31,6 @@ export const ConsultaEmpleado = ({navigation, route}) =>{
 
     useEffect(() =>{
         getListaEmpleados();
-        console.log('valor contador',route.params.contador);
     }, [isFocused]);
 
     /**
@@ -38,7 +38,7 @@ export const ConsultaEmpleado = ({navigation, route}) =>{
      */
     const getListaEmpleados = () =>{
 
-        const sql = `SELECT 
+        const sql = `SELECT
                             TD.ID_TRANSPORT
                         ,   TD.ID_TRANSPORTISTA
                         ,   (SELECT NOMBRE FROM TRANSPORTISTA WHERE ID_TRANSPORTISTA = TD.ID_TRANSPORTISTA) NOMBRE_TRANSPORTISTA
@@ -49,6 +49,8 @@ export const ConsultaEmpleado = ({navigation, route}) =>{
                         ,   TD.FECHA_REGISTRO
                     FROM 
                         TRANSPORTE_DETALLE TD
+                    ORDER BY
+                        TD.FECHA_REGISTRO DESC
         `
 
         db.transaction(txn => {
@@ -69,7 +71,6 @@ export const ConsultaEmpleado = ({navigation, route}) =>{
                         }
 
                         setListEmpleados(results);
-                        console.log('Empleados obtenidos correctamente en consulta empleado!');
                     }else{
                         console.log('No se encontraron empleados registrados');
                     }
@@ -117,8 +118,8 @@ export const ConsultaEmpleado = ({navigation, route}) =>{
             RNFetchBlob.fs
                 .writeFile(pathToWrite, csvString, 'utf8')
                 .then(() => {
-                console.log(`wrote file ${pathToWrite}`);
-                alert('descargado correctamente');
+                //console.log(`wrote file ${pathToWrite}`);
+                //alert('descargado correctamente');
                 // wrote file /storage/emulated/0/Download/data.csv
             }) .catch(error => console.error(error));
     
@@ -160,7 +161,7 @@ export const ConsultaEmpleado = ({navigation, route}) =>{
             RNFetchBlob.wrap(PATH_TO_THE_FILE)
         )
         .then((res) => {
-            console.log(res.text());
+            //console.log(res.text());
             alert('Archivo Subido Correctamente');
         })
         .catch((err) => {
@@ -218,6 +219,7 @@ export const ConsultaEmpleado = ({navigation, route}) =>{
     }**/
 
     let table = <Table></Table>;
+    let alert = <View></View>;
 
     if(listEmpleados.length > 0){
 
@@ -227,7 +229,7 @@ export const ConsultaEmpleado = ({navigation, route}) =>{
 
         for(let index = 0; index < listEmpleados.length;index++){
 
-            empleado = [];
+            
             let codigoEmpleado      = listEmpleados[index].CODIGO_EMPLEADO;
             let codigoRuta          = listEmpleados[index].CODIGO_RUTA;
             let fechaRegistro       = listEmpleados[index].FECHA_REGISTRO;
@@ -239,34 +241,57 @@ export const ConsultaEmpleado = ({navigation, route}) =>{
             empleado.push(fechaRegistro);
 
             empleados.push(empleado);
+            empleado = [];
 
         }
 
-        const thead = ['TRANSPORT', 'RUTA', 'COD EMP', 'FEC REG'];
+        const thead = ['Transport', 'Ruta', 'Cod Emp', 'Fec Reg'];
+        const widthArr = [120, 80, 80, 120];
+        
         table = 
-            <View>
+            <View style={styles.container}>
+
                 <ScrollView horizontal={true}>
-                    <View>
-                        <Table borderStyle={{borderWidth: 2, borderColor: '#c8e1ff'}}>
-                            <Row data={thead} style={styles.head} textStyle={styles.textHead}/>
+                    <View style={[styles.containerInner, styles.boxShadow]}>
+
+                        <View style={styles.containerTextLabel}>
+                            <Text style={[styles.textLabel, styles.textShadow]}>Asistencia de Empleados</Text>
+                        </View>
+
+                        <Table borderStyle={{borderWidth: 2, borderColor: '#c8e1ff', color: '#fff'}}>
+                            <Row data={thead} style={styles.head} widthArr={widthArr} textStyle={[styles.textHead]}/>
                         </Table>
 
                         <ScrollView style={styles.dataWrapper}>
                             <Table borderStyle={{borderWidth: 2, borderColor: '#c8e1ff'}}>
-                                <Rows data={empleados} style={styles.tableBody}
+                                <Rows data={empleados} widthArr={widthArr} style={styles.tableBody}
                                 
                                 textStyle={styles.tableBody} />
                             </Table>
                         </ScrollView>
-                        </View>
+                    </View>
                 </ScrollView>
             </View>
+        ;
+    }else{
+        alert = <View style={styles.container}>
+
+                    <View style={[styles.containerInner, styles.boxShadow]}>
+                        <View style={[styles.alertDanger]}>
+                            <Text style={styles.textDanger}>
+                                <Icon name="exclamation-triangle" size={15} color="#fff" /> No existen trabajadores registrados
+                            </Text>
+                        </View>
+                    </View>
+
+                </View>
         ;
     }
 
     return (
         <View>
             {table}
+            {alert}
         </View>
     );
 
@@ -276,20 +301,68 @@ const styles = StyleSheet.create({
     head: { 
             height: 40
         ,   backgroundColor: '#3792C6'
-        ,   color: '#fff !important'
         ,   fontWeight: 'bold'
     },
     textHead:{
-        textAlign: 'center'
+            textAlign: 'center'
+        ,   color: '#fff'
     },
     tableBody:{
             color: 'black'
         ,   textAlign: 'center'
         ,   borderCollapse: 'collapse'
-        ,   padding: 5
+        ,   fontSize: 13.5
+        
     },
     dataWrapper: { marginTop: -1 },
-    text: { textAlign: 'center', fontWeight: '100' },
-    container: { flex: 1, padding: 16, paddingTop: 30, backgroundColor: '#fff' },
+    container:{
+        marginLeft: 5,
+        marginRight: 5,
+        marginTop: 5,
+        marginBottom: 10
+    },
+    container:{
+        marginLeft: 5,
+        marginRight: 5,
+        marginTop: 5,
+    },
+    containerInner:{
+        backgroundColor: '#fff',
+        borderRadius: 5,
+        padding: 4
+    },
+    boxShadow:{
+        shadowColor: '#000',
+        elevation: 20, // Android
+        shadowOffset: { height: -2, width: 4 }, // IOS
+        shadowOpacity: 0.2, // IOS
+        shadowRadius: 3, //IOS
+    },
+    textLabel:{
+        fontSize: 20,
+        color: '#000',
+        fontFamily: '',
+        fontWeight: 'bold',
+        fontStyle: 'italic',
+        marginBottom: 17,
+    },
+    textShadow: {
+        textShadowColor: 'rgba(48, 48, 48, 0.3)',
+        textShadowOffset: {width: -3, height: 3},
+        textShadowRadius: 10
+    },
+    containerTextLabel:{
+        alignItems: 'center',
+        justifyContent: 'center'
+    },
+    alertDanger:{
+        backgroundColor: '#E82D2D',
+        borderRadius: 5,
+        padding: 3
+    },
+    textDanger: {
+        color: 'white',
+        fontWeight: 'bold'
+    }
     
   });

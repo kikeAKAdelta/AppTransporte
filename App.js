@@ -1,7 +1,7 @@
 import 'react-native-gesture-handler';
 import * as React from 'react';
 import { useEffect, useCallback, useState } from 'react';
-import {NavigationContainer} from '@react-navigation/native';
+import {  NavigationContainer, DefaultTheme } from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 
@@ -13,6 +13,13 @@ import { ConsultaEmpleado } from './components/Empleado/ConsultaEmpleado.js';
 import { ExportDataEmpleados } from './components/ExportData/ExportDataUser.js';
 import { LoginApp } from './components/login/Login.js';
 import { CerrarSession } from './components/login/CerrarSesion.js';
+import { SolicitudCapa } from './components/solicitud/solicitud.js'
+import { SolicitudList } from './components/solicitud/solicitudList.js'
+import { SolicitudDetalle } from './components/solicitud/solicitudDetalle.js'
+import { SolicitudDetalleRegistro } from './components/solicitud/solicitudDetalleRegistro.js'
+import { SolicitudDetalleList } from './components/solicitud/solicitudDetalleList.js'
+import Toast from 'react-native-toast-message';
+import Icon from 'react-native-vector-icons/FontAwesome5';
 
 import {
   SafeAreaView,
@@ -35,6 +42,18 @@ import {
 
 const Drawer = createDrawerNavigator();
 const Stack  = createNativeStackNavigator();
+
+const MyTheme = {
+  dark: false,
+  colors: {
+    primary: 'rgb(34, 186, 227)',
+    background: 'rgb(242, 242, 242)',
+    card: 'rgb(255, 255, 255)',
+    text: 'rgb(28, 28, 30)',
+    border: 'rgb(199, 199, 204)',
+    notification: 'rgb(255, 69, 58)',
+  },
+};
 
 /* $FlowFixMe[missing-local-annot] The type annotation(s) required by Flow's
  * LTI update could not be added via codemod */
@@ -96,11 +115,59 @@ const App = () => {
    */
   const Menu = () =>{
     return (
-      <Drawer.Navigator>
-        <Drawer.Screen name="Home" component={DropDownTransportista} />
-        <Drawer.Screen name="Consulta Empleado" component={ConsultaEmpleado} initialParams={{ contador: contador++ }} />
-        <Drawer.Screen name="Exportar Registros" component={ExportDataEmpleados} />
-        <Drawer.Screen name="Cerrar Sesion" component={ CerrarSession } />
+      <Drawer.Navigator screenOptions={({ navigation }) => ({
+            headerStyle: {
+              backgroundColor: '#00b4d8',
+            },
+            headerTintColor: '#fff',
+          })} 
+        >
+        {/* <Drawer.Screen name="Home" component={ DropDownTransportista } options={{
+                                                                          drawerIcon: ({focused, size}) => (
+                                                                              <Icon name="home" size={20} color="#00b4d8" />
+                                                                            ),
+                                                                        }} 
+        /> */}
+        {/* <Drawer.Screen name="Consulta Empleado" component={ ConsultaEmpleado } initialParams={{ contador: contador++ }}  options={{
+                                                                                                                            drawerIcon: ({focused, size}) => (
+                                                                                                                                <Icon name="search" size={20} color="#00b4d8" />
+                                                                                                                              ),
+                                                                                                                          }} 
+
+        
+        /> */}
+        {/* <Drawer.Screen name="Exportar Registros" component={ ExportDataEmpleados }  options={{
+                                                                                              drawerIcon: ({focused, size}) => (
+                                                                                                  <Icon name="file-export" size={20} color="#00b4d8" />
+                                                                                                ),
+                                                                                                headerTitle : 'Exportacion de Registros'
+                                                                                            }} 
+        
+        /> */}
+        <Drawer.Screen name="Listado Solicitud" component={ SolicitudList }  options={{
+                                                                                        drawerIcon: ({focused, size}) => (
+                                                                                            <Icon name="clipboard-list" size={20} color="#00b4d8" />
+                                                                                          ),
+                                                                                          headerTitle: 'Listado de Solicitudes'
+                                                                                      }} 
+        
+        />
+        
+        <Drawer.Screen name="Crear Solicitud" component={ SolicitudCapa }  options={{
+                                                                                      drawerIcon: ({focused, size}) => (
+                                                                                          <Icon name="plus-circle" size={20} color="#00b4d8" />
+                                                                                        ),
+                                                                                    }} 
+        
+        />
+        
+        <Drawer.Screen name="Cerrar Sesion" component={ CerrarSession } options={{
+                                                                                  drawerIcon: ({focused, size}) => (
+                                                                                      <Icon name="sign-out-alt" size={20} color="#F70F0F" />
+                                                                                    ),
+                                                                                }} 
+
+        />
       </Drawer.Navigator>
     );
   }
@@ -110,21 +177,69 @@ const App = () => {
    * El unico visual para el usuario sera el del component 'Menu', los demas unicamente se accesara desde codigo.
    */
   return (
-    <NavigationContainer>
-      <Stack.Navigator>
+    // <AlertNotificationRoot theme={'dark' }>
+      <NavigationContainer theme={MyTheme} style={styles.login}>
+        <Stack.Navigator >
 
-        <Stack.Screen name="Login" component={ LoginApp } option={{title: 'Login'}} />
+          <Stack.Screen name="Login" component={ LoginApp } options={{headerShown: false}}  />
 
-        <Stack.Screen 
-          name="Menu" 
-          component={Menu} 
-          options={{headerShown: false}} 
-        />
-        
-        <Stack.Screen name="Registro" component={ RegistroEmpleado } option={{title: 'Registro'}} />
+          <Stack.Screen 
+            name="Menu" 
+            component={Menu} 
+            options={{headerShown: false}}
+          />
+          
+          <Stack.Screen name="Registro" component={ RegistroEmpleado } 
+            options={
+                  {
+                    title: 'Registro',  
+                    headerStyle: {
+                                backgroundColor: '#00b4d8',
+                    },
+                    headerTintColor: '#fff',
+                  }
+            } 
+          />
 
-      </Stack.Navigator>
-    </NavigationContainer>
+          <Stack.Screen name="SolicitudDetalle" component={ SolicitudDetalle } 
+            options={
+                  {
+                    title: 'Solicitud Detalle',  
+                    headerStyle: {
+                                backgroundColor: '#00b4d8',
+                    },
+                    headerTintColor: '#fff',
+                  }
+            } 
+          />
+
+          <Stack.Screen name="SolicitudDetalleRegistro" component={ SolicitudDetalleRegistro } 
+            options={
+                  {
+                    title: 'Marcacion de Trabajador',  
+                    headerStyle: {
+                                backgroundColor: '#00b4d8',
+                    },
+                    headerTintColor: '#fff',
+                  }
+            } 
+          />
+
+          <Stack.Screen name="SolicitudDetalleList" component={ SolicitudDetalleList } 
+            options={
+                  {
+                    title: 'Marcaciones de Trabajadores',  
+                    headerStyle: {
+                                backgroundColor: '#00b4d8',
+                    },
+                    headerTintColor: '#fff',
+                  }
+            }
+          />
+
+        </Stack.Navigator>
+        <Toast />
+      </NavigationContainer>
     
   );
   
@@ -147,6 +262,10 @@ const styles = StyleSheet.create({
   highlight: {
     fontWeight: '700',
   },
+  login:{
+    backgroundColor: '#54C2D3',
+    marginBottom: 0
+  }
 });
 
 export default App;

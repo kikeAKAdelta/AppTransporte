@@ -10,10 +10,12 @@ import {
  * Funcion encargada de poder crear una nueva variable de session en sistema.
  * @param {*} value Valor de la variable de sesion.
  */
-export const createSessionUser = async (value) =>{
+export const createSessionUser = async (objUser) =>{
+
+    const jsonUser = JSON.stringify(objUser);
 
     try{
-        await AsyncStorage.setItem('userSession', value);
+        await AsyncStorage.setItem('userSession', jsonUser);
     }catch(error){
         console.log(error);
     }
@@ -30,8 +32,9 @@ export const getSessionUser = async ({navigation}) =>{
         const value = await AsyncStorage.getItem('userSession');
 
         if(value !== null){
-            console.log('La sesion es', value);
-            return value;
+            //console.log('La sesion es', value);
+            const restoredArray = JSON.parse(value);
+            return restoredArray;
         }else{
             navigation.navigate('Login', { message: 'Sesion ha caducado!' });
         }
@@ -50,7 +53,7 @@ export const existSessionUser = async ({navigation}) =>{
 
     try{
         const value = await AsyncStorage.getItem('userSession');
-        console.log('existe sesion',value);
+        //console.log('existe sesion',value);
         if(value !== null){
             navigation.navigate('Menu');
         }

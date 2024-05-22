@@ -1,80 +1,61 @@
-import * as React from 'react';
-import { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react'
 import { openDatabase, SQLiteDatabase} from "react-native-sqlite-storage";
-import {createNativeStackNavigator} from '@react-navigation/native-stack';
-//import { ALERT_TYPE, Dialog, AlertNotificationRoot, Toast } from 'react-native-alert-notification';
-import Toast from 'react-native-toast-message';
 import Icon from 'react-native-vector-icons/FontAwesome5';
+import Toast from 'react-native-toast-message';
+import { createSessionUser, existSessionUser, getSessionUser } from './../login/Session';
+import { useIsFocused } from '@react-navigation/native';
+import RNPickerSelect from 'react-native-picker-select';
 
 import {
-    SafeAreaView,
-    ScrollView,
-    StatusBar,
-    StyleSheet,
-    Text,
-    useColorScheme,
-    View,
-    Button,
-    TextInput,
-    TouchableOpacity
+    StyleSheet,    Text,    useColorScheme,    View, Button, TouchableOpacity, TextInput
 } from 'react-native';
-  
-import {
-    Colors,
-    DebugInstructions,
-    Header,
-    LearnMoreLinks,
-    ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
-
-
-const Stack = createNativeStackNavigator();
 
 const db  = openDatabase(
-    {name: 'Tranporte.db', createFromLocation: '~www/Tranporte.db'},
+    {name: 'Tranporte.db', createFromLocation: '~Tranporte.db'},
     () => { console.log('Conexion a la Base de Datos Exitosa New');},
     (error) =>{
         console.error(error);
         throw Error("Error conexion a Base de Datos Local New");
-    });
+    }
+);
 
-export const RegistroEmpleado = ({navigation, route}) =>{
+export const SolicitudDetalleRegistro = ({navigation, route}) =>{
 
-    const [ empleado, setEmpleado ] = useState([]);
-    const [ isFocused, setIsFocused ] = useState(false)
-    const [ registroEmp, setRegistroEmp ] = useState();
+    const [ isFocused, setIsFocused ]       = useState(false);
+    const [ registroEmp, setRegistroEmp ]   = useState();
 
+    /**
+     * Funcion encargada de registrar un trabajador en la solicitud actual.
+     * @returns 
+     */
     const saveEmpleado = () =>{
 
-        let idTransportista = route.params.transport;
-        let idRuta          = route.params.ruta;
-
-        const empleado = [
-                idTransportista
-            ,   idRuta
-            ,   registroEmp
-        ];
+        let idSolicitud     = route.params.idSolicitud;
 
         if(registroEmp == '' || registroEmp == null){
 
             Toast.show({
                 type: 'error',
-                text1: 'Codigo de Empleado',
-                text2: 'Favor ingrese el codigo de empleado',
+                text1: 'Codigo de Trabajador',
+                text2: 'Favor ingrese el codigo de trabajador',
                 visibilityTime: 2000
             })
 
             return;
         }
 
+        const empleado = [
+                idSolicitud
+            ,   registroEmp
+        ];
+
         const insertQuery = `
-            INSERT INTO TRANSPORTE_DETALLE 
-                (       ID_TRANSPORTISTA
-                    ,   ID_RUTA
+            INSERT INTO SOLICITUD_DETALLE 
+                (       
+                        ID_SOLICITUD
                     ,   CODIGO_EMPLEADO
-                    ,   FECHA_REGISTRO
                 )
-            VALUES (?, ?, ?, datetime('now','localtime'))
+            VALUES (?, ?)
         `
 
         db.transaction(txn =>{
@@ -88,23 +69,75 @@ export const RegistroEmpleado = ({navigation, route}) =>{
                         Toast.show({
                             type: 'success',
                             text1: 'Registro Exitoso',
-                            text2: 'Empleado registrado correctamente',
+                            text2: 'Trabajador registrado correctamente',
                             visibilityTime: 2000
                         })
                     },
                     error =>{
-                        console.log("Error agregando empleado " + error.message);
+                        console.log("Error agregando trabajador " + error.message);
                     }
                 );
             }
         );
     }
 
+    const validacionRegistroEmpleado = () =>{
+
+        /**Primero validamos que no exista en la base de datos */
+        const sql = `SELECT COUNT(*) EXISTE FROM SOLICITUD_DETALLE WHERE CODIGO_EMPLEADO = '${registroEmp}'`
+
+        db.transaction(txn => {
+            txn.executeSql(
+                sql, 
+                [],
+                (sqlTxn, res) => {
+                    
+                    let existe = res.rows.item(0).EXISTE;
+
+                    if(existe == 0){
+                        saveEmpleado();
+                    }else if(existe == 1){
+
+                        Toast.show({
+                            type: 'error',
+                            text1: 'Trabajador Registrado',
+                            text2: 'Trabajador no se puede registrar en la misma solicitud',
+                            visibilityTime: 3000
+                        })
+
+                        return;
+                    }
+                },
+                error => {
+                console.log("Error obteniendo lista de trabajadores registrados " + error.message);
+            }
+            )
+        });
+    }
+
+
     return(
         <View style={styles.container}>
             <View style={[styles.containerInner, styles.boxShadow]}>
                 <View style={styles.containerTextLabel}>
-                    <Text style={[styles.textLabel, styles.textShadow]}>Registro de Empleados</Text>
+                    <Text style={[styles.textLabel, styles.textShadow]}>Registro de Trabajadores</Text>
+                </View>
+
+                <View style={styles.containerTextSolicitud}>
+                    <Text style={[styles.textLabel, styles.textShadow]}>Solicitud <Text>#{route.params.idSolicitud}</Text> </Text>
+                </View>
+
+                <View style={styles.containerButtonBack}>
+                    <TouchableOpacity
+                        style={[styles.buttonBack, styles.boxShadow]}
+                        onPress= {() => navigation.navigate('Listado Solicitud')}
+                    >
+
+                        <Text style={styles.textTouchable}>
+                            <Icon name="undo" size={15} color="#fff" />  Regresar
+                        </Text>
+
+                    </TouchableOpacity>
                 </View>
 
                 <TextInput
@@ -121,16 +154,18 @@ export const RegistroEmpleado = ({navigation, route}) =>{
                     {/* <Button title="Registrar Empleado" onPress={ saveEmpleado } /> */}
                     <TouchableOpacity
                             style={[styles.buttonLogin, styles.boxShadow]}
-                            onPress={ saveEmpleado }
+                            onPress={ validacionRegistroEmpleado }
                     >
 
                         <Text style={styles.textTouchable}>
-                            <Icon name="save" size={20} color="#fff" solid />  Registrar Empleado
+                            <Icon name="save" size={20} color="#fff" solid />  Registrar Trabajador
                         </Text>
 
                     </TouchableOpacity>
                 </View>
+
             </View>
+
         </View>
 
     );
@@ -198,6 +233,9 @@ const styles = StyleSheet.create({
     containerTextLabel:{
         alignItems: 'center',
         justifyContent: 'center'
+    },
+    containerTextSolicitud:{
+        
     },
     buttonLogin: {
         height: 45,

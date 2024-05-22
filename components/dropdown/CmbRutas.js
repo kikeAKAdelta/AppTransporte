@@ -2,9 +2,11 @@ import React, { useState, useEffect } from 'react';
 import {Node} from 'react';
 import RNPickerSelect from 'react-native-picker-select';
 import { openDatabase, SQLiteDatabase} from "react-native-sqlite-storage";
+import Icon from 'react-native-vector-icons/FontAwesome5';
+import Toast from 'react-native-toast-message';
 
 import {
-    StyleSheet,    Text,    useColorScheme,    View, Button
+    StyleSheet,    Text,    useColorScheme,    View, Button, TouchableOpacity
 } from 'react-native';
 
 
@@ -135,7 +137,7 @@ export const DropDownRutas = ({navigation, transport}) =>{
     let selectComponent =<Text>No se carga lista rutas</Text>;
     let textDescripcion = <Text>No se tiene ruta</Text>;
 
-    console.log('Mensaje');
+    //console.log('Mensaje');
 
     /**Si existen rutas entonces creamos el Select (CMB) de Rutas */
     if(listRutas.length > 0){
@@ -158,11 +160,23 @@ export const DropDownRutas = ({navigation, transport}) =>{
 
         if(selectedRutaValue != null){
             
-            buttonNext = <Button
+            /**buttonNext = <Button
                             title="Siguiente" 
                             accessibilityLabel="Boton de Siguiente" 
                             onPress= {() => navigation.navigate('Registro', { transport: transport, ruta: selectedRutaValue })}
                       />
+            ;**/
+
+            buttonNext = <TouchableOpacity
+                            style={[styles.buttonLogin, styles.boxShadow]}
+                            onPress= {() => navigation.navigate('Registro', { transport: transport, ruta: selectedRutaValue })}
+                         >
+
+                            <Text style={styles.textTouchable}>
+                                <Icon name="arrow-alt-circle-right" size={20} color="#fff" />  Siguiente
+                            </Text>
+
+                        </TouchableOpacity>
             ;
 
             if(itemRuta.length > 0){
@@ -172,12 +186,35 @@ export const DropDownRutas = ({navigation, transport}) =>{
 
         }else{
 
-            buttonNext = <Button
+            /**buttonNext = <Button
                             title="Siguiente" 
                             accessibilityLabel="Boton de Siguiente" 
                             onPress= {() => alert('Seleccione transportista y ruta')}
                       />
-            ;
+            ;**/
+
+            buttonNext =    <TouchableOpacity
+                            style={[styles.buttonLogin, styles.boxShadow]}
+                            onPress={() =>{
+
+                                Toast.show({
+                                    type: 'error',
+                                    text1: 'Seleccione transportista y ruta',
+                                    
+                                    visibilityTime: 2000
+                                })
+
+                                return;
+                                } 
+                            }
+                        >
+
+                            <Text style={styles.textTouchable}>
+                                <Icon name="arrow-alt-circle-right" size={20} color="#fff" />  Siguiente
+                            </Text>
+
+                        </TouchableOpacity>
+        ;
 
         }
 
@@ -195,19 +232,42 @@ export const DropDownRutas = ({navigation, transport}) =>{
                             {selectedRutaValue && <Text>Selected: {selectedRutaValue}</Text>}
         ;
 
-        buttonNext = <Button
+        /**buttonNext = <Button
                             title="Siguiente" 
                             accessibilityLabel="Boton de Siguiente" 
                             onPress= {() => alert('Seleccione transportista y ruta')}
                       />
+        ;**/
+
+        buttonNext =    <TouchableOpacity
+                            style={[styles.buttonLogin, styles.boxShadow]}
+                            onPress={() =>{
+                                
+                                Toast.show({
+                                    type: 'error',
+                                    text1: 'Seleccione transportista y ruta',
+                                    
+                                    visibilityTime: 2000
+                                })
+
+                                return;
+                                } 
+                            }
+                        >
+
+                            <Text style={styles.textTouchable}>
+                                <Icon name="arrow-alt-circle-right" size={20} color="#fff" />  Siguiente
+                            </Text>
+
+                        </TouchableOpacity>
         ;
     }
 
     return (
         <View>
-            <Text style={styles.textStyle}>Seleccione Ruta:</Text>
+            <Text style={styles.textStyle}>Ruta:</Text>
             {selectComponent}
-            {selectedRutaValue && <Text style={styles.textStyle}>Selected: {selectedRutaValue}</Text>}
+            {/* {selectedRutaValue && <Text style={styles.textStyle}>Selected: {selectedRutaValue}</Text>} */}
             {textDescripcion}
             <View style={styles.containerSection}>
                 {buttonNext}
@@ -223,12 +283,35 @@ const styles = StyleSheet.create({
     },
     textStyle: {
         color: '#000',
-        marginBottom: 5
+        marginBottom: 5,
+        fontWeight: 'bold',
     },
     containerSection:{
-        marginTop: 15,
+        marginTop: 75,
         marginBottom: 15,
-    }
+    },
+    buttonLogin: {
+        height: 45,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#2FA1E7',
+        borderRadius: 50,
+        borderWidth: 1,
+        borderColor: '#1AA1F3'
+    },
+    boxShadow:{
+        shadowColor: 'rgba(0, 0, 0, 7)', // IOS
+        shadowOffset: { height: 1, width: 1 }, // IOS
+        shadowOpacity: 1, // IOS
+        shadowRadius: 1, //IOS
+        elevation: 5, // Android
+    },
+    textTouchable: {
+        color: 'white',
+        fontSize: 17,
+        fontWeight: 'bold',
+        justifyContent: 'center', //Centered vertically
+    },
 });
 
 const customPickerStyles = StyleSheet.create({

@@ -5,6 +5,7 @@ import { openDatabase, SQLiteDatabase} from "react-native-sqlite-storage";
 import { DropDownRutas } from './CmbRutas.js';
 import { connectToDatabase } from './../../database/AppTransporteDB.js';
 import { createSessionUser, getSessionUser, existSessionUser } from './../login/Session.js';
+import Icon from 'react-native-vector-icons/FontAwesome5';
 
 import {
     StyleSheet,    Text,    useColorScheme,    View, Button
@@ -41,11 +42,14 @@ export const DropDownTransportista = ({navigation}) =>{
         let userSession = await getSessionUser({navigation});         /**Obtenemos variable de Session */
         let filterUser  = '';
 
-        if(userSession != ''){
-            filterUser = ` WHERE CODIGO_USUARIO = '${userSession}'`;
-        }
+        console.log(userSession.codigoUsuario);
 
-        console.log(userSession);
+        const codigoUsuario = userSession.codigoUsuario;
+
+        if(userSession != ''){
+            //filterUser = ` WHERE CODIGO_USUARIO = '${userSession}'`;
+            filterUser = ` WHERE CODIGO_USUARIO = '${codigoUsuario}'`;
+        }
 
         db.transaction(txn => {
 
@@ -115,22 +119,28 @@ export const DropDownTransportista = ({navigation}) =>{
                                 onValueChange={(value) => setSelectedValue(value)}
                                 style={customPickerStyles}
                             />
-                            {selectedValue && <Text>Selected: {selectedValue}</Text>}
+                            // {selectedValue && <Text>Selected: {selectedValue}</Text>}
         ;
 
     }
 
     return (
-        <View style={styles.container}>
-            <View style={styles.containerSection}>
-                <Text style={styles.textStyle}>Seleccione Transportista:</Text>
-                {selectComponent}
-                {selectedValue && <Text style={styles.textStyle}>Selected: {selectedValue}</Text>}
+        <View style={[styles.container]}>
+            <View style={[styles.containerInner, styles.boxShadow]}>
+
+                <View style={[styles.containerTextLabel]}>
+                    <Text style={[styles.textLabel, styles.textShadow]}>Asistencia de Empleados</Text>
+                </View>
+
+                <View style={styles.containerSection}>
+                    <Text style={styles.textStyle}>Transportista:</Text>
+                    {selectComponent}
+                    {/* {selectedValue && <Text style={styles.textStyle}>Selected: {selectedValue}</Text>} */}
+                </View>
+                <View style={styles.containerSection}>
+                    {selectRuta}
+                </View>
             </View>
-            <View style={styles.containerSection}>
-                {selectRuta}
-            </View>
-            
         </View>
     );
 }
@@ -139,14 +149,45 @@ const styles = StyleSheet.create({
     container:{
         marginLeft: 5,
         marginRight: 5,
+        marginTop: 5,
     },
     textStyle: {
         color: '#000',
-        marginBottom: 5
+        marginBottom: 5,
+        fontWeight: 'bold',
     },
     containerSection:{
-        marginTop: 15,
+        marginTop: 30,
         marginBottom: 15,
+    },
+    containerInner:{
+        backgroundColor: '#fff',
+        borderRadius: 5,
+        padding: 7
+    },
+    textLabel:{
+        fontSize: 20,
+        color: '#000',
+        fontFamily: '',
+        fontWeight: 'bold',
+        fontStyle: 'italic',
+        marginBottom: 17,
+    },
+    containerTextLabel:{
+        alignItems: 'center',
+        justifyContent: 'center'
+    },
+    boxShadow:{
+        shadowColor: '#000',
+        elevation: 20, // Android
+        shadowOffset: { height: -2, width: 4 }, // IOS
+        shadowOpacity: 0.2, // IOS
+        shadowRadius: 3, //IOS
+    },
+    textShadow: {
+        textShadowColor: 'rgba(48, 48, 48, 0.3)',
+        textShadowOffset: {width: -3, height: 3},
+        textShadowRadius: 10
     }
 });
 

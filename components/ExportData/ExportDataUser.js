@@ -6,6 +6,11 @@ import { Table, TableWrapper, Row, Rows, Col, Cols, Cell } from 'react-native-ta
 import { authorize } from 'react-native-app-auth';
 import { createSessionDropbox, getSessionDropbox, existSessionUser } from './../login/Session.js';
 import Mailer from "react-native-mail";
+// import { ALERT_TYPE, Dialog, AlertNotificationRoot, Toast } from 'react-native-alert-notification';
+import Toast from 'react-native-toast-message';
+import Icon from 'react-native-vector-icons/FontAwesome5';
+import { useIsFocused } from '@react-navigation/native';
+import RNSmtpMailer from "react-native-smtp-mailer";
 
 import {
     StyleSheet,    Text,    useColorScheme,    View, Button, TouchableOpacity, Alert
@@ -26,25 +31,26 @@ export const ExportDataEmpleados = ({navigation}) =>{
     const [ listFechas, setListFechas ] = useState([]);
     const [ miDate, setMiDate ] = useState('');
     const [ sesionDropbox, setSesionDropbox ] = useState({});
+    const isFocused = useIsFocused();               /**Cuando tome el foco, si cambia recargara la funcion en useEffect */
 
     let tableComponent = <Table></Table>;
 
-    useEffect(() =>{
+    useEffect(() => {
         getListFechasRegistros();
-    }, []);
+    }, [isFocused]);
 
     useEffect(() => {
         exportDataFecha(miDate);
     }, [listEmpleados]);
 
-    const sendMail = () =>{
+    const sendMail = (fecha) => {
 
-        const PATH_TO_THE_FILE = `${RNFetchBlob.fs.dirs.DownloadDir}/dataTransportista_202404-14.csv`;
+        const PATH_TO_THE_FILE = `${RNFetchBlob.fs.dirs.DownloadDir}/TransportePTCA_${fecha}.csv`;
 
         Mailer.mail({
-            subject: 'Lets Code',
-            recipients: ['kike04arevalo@gmail.com'],
-            body: 'Hi There',
+            subject: 'Asistencia Transporte PTCA' + fecha,
+            recipients: ['kike04arevalo@gmail.com'],     //Es el TO, el FROM lo toma de quien este logueado en sesion ya sea Gmail, Outlook, etc
+            body: 'Anexo informacion de asistencia de PTCA',
             isHTML: false,
             attachments: [{
                 path: PATH_TO_THE_FILE,
@@ -54,15 +60,70 @@ export const ExportDataEmpleados = ({navigation}) =>{
             if(error!=undefined){
                 alert(AppConfig.AppName + ' cannot open default Email App.');
             }
-        });
+        }); 
             
-            
+    }
+
+    const sendMailSmtp = (fecha) =>{
+
+        const PATH_TO_THE_FILE = `${RNFetchBlob.fs.dirs.DownloadDir}/TransportePTCA_${fecha}.csv`;
+
+        RNSmtpMailer.sendMail({
+            mailhost: "smtp.gmail.com",
+            port: "465",
+            ssl: true, // optional. if false, then TLS is enabled. Its true by default in android. In iOS TLS/SSL is determined automatically, and this field doesn't affect anything
+            username: "kike04arevalo@gmail.com",
+            password: "znmhhugnczfcbmgm",
+            fromName: "kike04arevalo@gmail.com", // optional
+            replyTo: "kike04arevalo@gmail.com", // optional
+            recipients: "kike04arevalo@gmail.com",
+            bcc: ["kike04arevalo@gmail.com",], // optional
+            subject: "Asitencia de Transporte de Empleados Pettenati",
+            htmlBody: `
+                        <h1>Transporte Pettenati Centro America S.A de C.V</h1>
+                        <p>Lista de Empleados que hicieron uso del beneficio de transporte de la empresa.</p><br>
+                        <p>Se adjunta documento en formato CSV.</p>
+            `,
+            attachmentPaths: [
+                PATH_TO_THE_FILE
+            ], // optional
+            attachmentNames: [
+                `TransportePTCA_${fecha}.csv`,
+            ],
+            /**attachmentPaths: [
+              RNFS.ExternalDirectoryPath + "/image.jpg",
+              RNFS.DocumentDirectoryPath + "/test.txt",
+              RNFS.DocumentDirectoryPath + "/test2.csv",
+              RNFS.DocumentDirectoryPath + "/pdfFile.pdf",
+              RNFS.DocumentDirectoryPath + "/zipFile.zip",
+              RNFS.DocumentDirectoryPath + "/image.png"
+            ], // optional
+            attachmentNames: [
+              "image.jpg",
+              "firstFile.txt",
+              "secondFile.csv",
+              "pdfFile.pdf",
+              "zipExample.zip",
+              "pngImage.png"
+            ],**/ // required in android, these are renames of original files. in ios filenames will be same as specified in path. In a ios-only application, no need to define it
+        })
+        .then(
+            //success => console.log(success)
+            Toast.show({
+                type: 'success',
+                text1: 'Correo enviado correctamente',
+                text2: 'Correo enviado a RRHH',
+                visibilityTime: 2000
+            })
+        )
+        .catch(err => console.log(err));
+
     }
 
     /**
      * Funcion encargada de obtener la lista de empleados registrados en sistema.
      */
-    const getListaEmpleados = (fecha) =>{
+    const getListaEmpleados = (fecha) => {
 
         const sql = `SELECT 
                             TD.ID_TRANSPORT
@@ -78,8 +139,6 @@ export const ExportDataEmpleados = ({navigation}) =>{
                     WHERE
                     strftime('%Y-%m-%d', TD.FECHA_REGISTRO) = '${fecha}'
         `
-
-        console.log(sql);
 
         db.transaction(txn => {
             txn.executeSql(
@@ -100,7 +159,7 @@ export const ExportDataEmpleados = ({navigation}) =>{
 
                         setMiDate(fecha);
                         setListEmpleados(results);
-                        console.log('Empleados obtenidos correctamente en export user!');
+                        //console.log('Empleados obtenidos correctamente en export user!');
                     }else{
                         setMiDate('');
                         console.log('No se encontraron empleados registrados');
@@ -126,6 +185,8 @@ export const ExportDataEmpleados = ({navigation}) =>{
                         strftime('%Y-%m-%d', \`FECHA_REGISTRO\`) FECHA_REGISTRO
                     FROM 
                         TRANSPORTE_DETALLE
+                    ORDER BY
+                        FECHA_REGISTRO DESC
         `;
 
         db.transaction(txn => {
@@ -148,8 +209,6 @@ export const ExportDataEmpleados = ({navigation}) =>{
                         }
 
                         setListFechas(results);
-
-                        console.log('Fechas obtenidas correctamente!');
                     }else{
                         console.log('No se encontraron fechas de registros');
                     }
@@ -170,8 +229,6 @@ export const ExportDataEmpleados = ({navigation}) =>{
 
         //getListaEmpleados(fecha);       //Debo de hacer que ingrese de manera correcta cuando lis empleado tenga informacion, utilizare useffect
         if(listEmpleados.length > 0){
-
-            console.log('Ingreso al metodo de exportacion');
 
             let empleados   = [];
             let empleado    = [];
@@ -200,18 +257,27 @@ export const ExportDataEmpleados = ({navigation}) =>{
             let nuevaFecha = fecha.replace('-', '');
 
             const csvString = `${headerString}${rowString}`;
-            const pathToWrite = `${RNFetchBlob.fs.dirs.DownloadDir}/dataTransportista_${nuevaFecha}.csv`;
+            const pathToWrite = `${RNFetchBlob.fs.dirs.DownloadDir}/TransportePTCA_${nuevaFecha}.csv`;
             // pathToWrite /storage/emulated/0/Download/data.csv
             RNFetchBlob.fs
             .writeFile(pathToWrite, csvString, 'utf8')
             .then(() => {
 
-                console.log(`wrote file ${pathToWrite}`);
-                alert('descargado correctamente');
+                //console.log(`wrote file ${pathToWrite}`);
+                //alert('descargado correctamente');
                 // wrote file /storage/emulated/0/Download/data.csv
 
+                Toast.show({
+                    type: 'success',
+                    text1: 'Descarga Exitosa',
+                    text2: 'Archivo Generado Exitosamente',
+                    visibilityTime: 2000
+                })
+
                 setTimeout(function(){
-                    sendDataDropbox(nuevaFecha);
+                    // sendDataDropbox(nuevaFecha);
+                    //sendMail(nuevaFecha);
+                    sendMailSmtp(nuevaFecha);
                 }, 2000);
 
             }) .catch(error => console.error(error));
@@ -241,7 +307,7 @@ export const ExportDataEmpleados = ({navigation}) =>{
             //const dropboxUID = authState.tokenAdditionalParameters.account_id;
             const dropboxUID = authState.accessToken;
 
-            console.log(authState);
+            //console.log(authState);
             createSessionDropbox(dropboxUID);
             setSesionDropbox(dropboxUID);
           }catch(error){
@@ -270,25 +336,24 @@ export const ExportDataEmpleados = ({navigation}) =>{
     }
 
     const getSesion = async () =>{
-        console.log(sesionDropbox);
+        //console.log(sesionDropbox);
         tokenSesion = await getSessionDropbox()
-        console.log(tokenSesion);
+        //console.log(tokenSesion);
     }
-
 
     /**
      * Funcion encargada de poder enviar la informacion a DropBox
      */
     const sendDataDropbox = async (fechaExport) =>{
 
-        console.log('fecha export sendataDropbox', fechaExport);
+        //console.log('fecha export sendataDropbox', fechaExport);
 
-        const PATH_TO_THE_FILE = `${RNFetchBlob.fs.dirs.DownloadDir}/dataTransportista_${fechaExport}.csv`;
+        const PATH_TO_THE_FILE = `${RNFetchBlob.fs.dirs.DownloadDir}/TransportePTCA_${fechaExport}.csv`;
 
         /**El beare lo obtengo de dropbox donde he creado mi proyecto como desarrollador */
         //const bearerTkn = ``;
         const bearerTkn = await getSessionDropbox();
-        console.log(bearerTkn);
+        //console.log(bearerTkn);
 
         if(bearerTkn != ''){
 
@@ -304,7 +369,7 @@ export const ExportDataEmpleados = ({navigation}) =>{
                     // dropbox upload headers
                     Authorization: `Bearer ${bearerTkn}`,
                     "Dropbox-API-Arg": JSON.stringify({
-                        path: `/dataTransportista_${fechaExport}.csv`,
+                        path: `/TransportePTCA_${fechaExport}.csv`,
                         mode: "add",
                         autorename: true,
                         mute: false,
@@ -316,29 +381,53 @@ export const ExportDataEmpleados = ({navigation}) =>{
                 RNFetchBlob.wrap(PATH_TO_THE_FILE)
             )
             .then((res) => {
-                console.log(res);
-                console.log(res.respInfo.status);
+                //console.log(res);
+                //console.log(res.respInfo.status);
 
                 let statusResponse = res.respInfo.status;
 
                 if(statusResponse != 200){
 
                     if(statusResponse == 401){
-                        alert('No se pudo cargar en la nube, favor iniciar sesion en Dropbox');
+                        
+                        Toast.show({
+                            type: 'error',
+                            text1: 'Dropbox',
+                            text2: 'No se pudo cargar en la nube, favor iniciar sesion en Dropbox',
+                            visibilityTime: 2000
+                        })
+
                         return;
                     }
                 }
 
-                alert('Archivo Subido Correctamente');
+                Toast.show({
+                    type: 'success',
+                    text1: 'Carga',
+                    text2: 'Archivo Subido Correctamente',
+                    visibilityTime: 2000
+                })
             })
             .catch((err) => {
                 // error handling ..
                 console.log('Error');
-                alert('Favor inicie sesion en Dropbox');
+
+                Toast.show({
+                    type: 'error',
+                    text1: 'Sesion Dropbox',
+                    text2: 'Favor inicie sesion en Dropbox',
+                    visibilityTime: 2000
+                })
 
             });
         }else{
-            alert('Favor inicie sesion en Dropbox');
+
+            Toast.show({
+                type: 'error',
+                text1: 'Sesion Dropbox',
+                text2: 'Favor inicie sesion en Dropbox',
+                visibilityTime: 2000
+            })
         }
 
         
@@ -352,34 +441,37 @@ export const ExportDataEmpleados = ({navigation}) =>{
 
         for(let index = 0; index < cantidad; index++){
 
-            fecha = [];
+            
             let fechaRegistro      = listFechas[index].FECHA_REGISTRO;
             fecha.push(fechaRegistro);
             fecha.push(fechaRegistro);                  //De relleno, aca lo opaca el boton
 
             fechasRegistros.push(fecha);
+            fecha = [];
         }
 
-        console.log(fechasRegistros);
-
-        /**const element = (data, index) => (
-            <TouchableOpacity onPress={() => getListaEmpleados(data) }>
-              <View style={styles.btn}>
-                <Text style={styles.btnText}>button</Text>
-              </View>
-            </TouchableOpacity>
-        );**/
+        //console.log(fechasRegistros);
 
         const element = (data, index) => (
-            <Button title="Enviar" onPress={() => getListaEmpleados(data) } />
-              
+            <TouchableOpacity onPress={() => getListaEmpleados(data) }>
+              <View style={styles.containerBtn}>
+                <Text style={[styles.btnText]}>
+                    <Icon name="paper-plane" size={13} color="#fff" solid />  Enviar Mail
+                </Text>
+              </View>
+            </TouchableOpacity>
         );
 
-        const thead = ['FECHA REGISTRO', 'EXPORTAR'];
+        /**const element = (data, index) => (
+            <Button title="Enviar Mail" onPress={() => getListaEmpleados(data) } />
+        );**/
+
+
+        const thead = ['Fecha Registro', 'Exportar'];
 
         tableComponent = 
             <Table borderStyle={{borderWidth: 2, borderColor: '#c8e1ff'}}>
-                    <Row data={thead} style={styles.head} textStyle={styles.textHead}/>
+                    <Row data={thead} style={styles.head} textStyle={styles.textHead} />
                     {/* <Rows data={fechasRegistros} style={styles.tableBody} textStyle={styles.tableBody} /> */}
                     {
                         fechasRegistros.map((rowData, index) => (
@@ -392,41 +484,147 @@ export const ExportDataEmpleados = ({navigation}) =>{
                               }
                             </TableWrapper>
 
-                          ))
+                          )
+
+                        )
                     }
             </Table>
         ;
     }
 
     return (
-        <View>
-            <View>
-                <Button title="Iniciar Sesion" onPress={loginDropBox} />
-                <Button title="Imp Sesion" onPress={getSesion} />
-                <Button title="Send Mail" onPress={sendMail} /> 
+        <View style={styles.container}>
+            <View style={[styles.containerInner, styles.boxShadow]}>
+
+                <View style={styles.containerTextLabel}>
+                    <Text style={[styles.textLabel, styles.textShadow]}>Exportar Registros a RRHH</Text>
+                </View>
+
+                <View style={styles.containerButton}>
+                    {/* <Button title="Iniciar Sesion Dropbox" onPress={loginDropBox} /> */}
+
+                    <TouchableOpacity
+                            style={[styles.buttonLogin, styles.boxShadow]}
+                            onPress={ loginDropBox }
+                    >
+
+                        <Text style={styles.textTouchable}>
+                            <Icon name="sign-in-alt" size={15} color="#fff" solid /> Sesion Dropbox
+                        </Text>
+
+                    </TouchableOpacity>
+                    {/* <Button title="Imp Sesion" onPress={getSesion} /> */}
+                    {/* <Button title="Send Mail" onPress={sendMail} />  */}
+                </View>
+                {tableComponent}
             </View>
-            {tableComponent}
+
         </View>
     );
 }
 
 const styles = StyleSheet.create({
 
-    head: { 
+    head: {
             height: 40
         ,   backgroundColor: '#3792C6'
-        ,   color: '#fff !important'
+        ,   color: '#fff'
         ,   fontWeight: 'bold'
     },
     textHead:{
-        textAlign: 'center'
+            textAlign: 'center'
+        ,   color: '#fff'
+        ,   fontWeight: 'bold'
+        ,   fontSize: 16
     },
     tableBody:{
             color: 'black'
         ,   textAlign: 'center'
+        ,   padding: 10
+          
     },
-    btn: { width: 58, height: 18, backgroundColor: '#78B7BB',  borderRadius: 2 },
-    btnText: { textAlign: 'center', color: '#fff' },
-    row: { flexDirection: 'row', backgroundColor: '#FFF1C1' },
-    
+    containerBtn: { 
+            backgroundColor: '#78B7BB'
+        ,   justifyContent: 'center'
+        ,   borderRadius: 50
+        ,   flex: 1
+    },
+    btnText: { 
+            textAlign: 'center'
+        ,   verticalAlign: 'middle'
+        ,   color: '#fff' 
+        ,   backgroundColor: '#26B3E8'
+        ,   borderRadius: 50
+        ,   fontWeight: 'bold'
+        ,   height: 30
+        ,   justifyContent: 'center'
+        ,   alignItems: 'center'
+        ,   paddingTop: 5
+    },
+    row: { 
+            flexDirection: 'row'
+        ,   backgroundColor: '#fff' 
+        
+    },
+    container:{
+        marginLeft: 5,
+        marginRight: 5,
+        marginTop: 5,
+    },
+    containerInner:{
+        backgroundColor: '#fff',
+        borderRadius: 5,
+        padding: 7
+    },
+    textStyle: {
+        color: '#000',
+        marginBottom: 5
+    },
+    containerSection:{
+        marginTop: 15,
+        marginBottom: 15,
+    },
+    boxShadow:{
+        shadowColor: '#000',
+        elevation: 20, // Android
+        shadowOffset: { height: -2, width: 4 }, // IOS
+        shadowOpacity: 0.2, // IOS
+        shadowRadius: 3, //IOS
+    },
+    containerButton:{
+        marginTop: 10,
+        marginBottom: 30
+    },
+    textLabel:{
+        fontSize: 20,
+        color: '#000',
+        fontFamily: '',
+        fontWeight: 'bold',
+        fontStyle: 'italic',
+        marginBottom: 17,
+    },
+    textShadow: {
+        textShadowColor: 'rgba(48, 48, 48, 0.3)',
+        textShadowOffset: {width: -3, height: 3},
+        textShadowRadius: 10
+    },
+    containerTextLabel:{
+        alignItems: 'center',
+        justifyContent: 'center'
+    },
+    buttonLogin: {
+        height: 30,
+        width: 140,
+        justifyContent: 'center',
+        backgroundColor: '#2FA1E7',
+        borderRadius: 10,
+        borderWidth: 1,
+        borderColor: '#1AA1F3'
+    },
+    textTouchable: {
+        color: 'white',
+        fontSize: 14,
+        fontWeight: 'bold',
+        marginLeft: 7,
+    },
 });
