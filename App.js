@@ -18,6 +18,7 @@ import { SolicitudList } from './components/solicitud/solicitudList.js'
 import { SolicitudDetalle } from './components/solicitud/solicitudDetalle.js'
 import { SolicitudDetalleRegistro } from './components/solicitud/solicitudDetalleRegistro.js'
 import { SolicitudDetalleList } from './components/solicitud/solicitudDetalleList.js'
+import { TransportistaList } from './components/transportista/transportistaList.js'
 import Toast from 'react-native-toast-message';
 import Icon from 'react-native-vector-icons/FontAwesome5';
 
@@ -161,6 +162,14 @@ const App = () => {
         
         />
         
+        <Drawer.Screen name="Transportistas" component={ TransportistaList } options={{
+                                                                                  drawerIcon: ({focused, size}) => (
+                                                                                      <Icon name="sign-out-alt" size={20} color="#F70F0F" />
+                                                                                    ),
+                                                                                }} 
+
+        />
+
         <Drawer.Screen name="Cerrar Sesion" component={ CerrarSession } options={{
                                                                                   drawerIcon: ({focused, size}) => (
                                                                                       <Icon name="sign-out-alt" size={20} color="#F70F0F" />
@@ -236,6 +245,8 @@ const App = () => {
                   }
             }
           />
+
+          
 
         </Stack.Navigator>
         <Toast />

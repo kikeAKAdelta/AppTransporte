@@ -24,6 +24,7 @@ const db  = openDatabase(
 );
 
 export const SolicitudDetalleList = ({navigation, route}) =>{
+
     const isFocused = useIsFocused();               /**Cuando tome el foco, si cambia recargara la funcion en useEffect */
 
     const [ listEmpleados, setListEmpleados ] = useState([]);
@@ -628,4 +629,5 @@ const styles = StyleSheet.create({
         justifyContent: 'center', //Centered vertically
     },
     
-  });
+  
+});

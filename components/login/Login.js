@@ -8,6 +8,7 @@ import { createSessionUser, existSessionUser } from './Session.js';
 //import { ALERT_TYPE, Dialog, AlertNotificationRoot, Toast } from 'react-native-alert-notification';
 import Toast from 'react-native-toast-message';
 import Icon from 'react-native-vector-icons/FontAwesome5';
+import database from '@react-native-firebase/database';
 
 
 import {
@@ -32,7 +33,6 @@ export const LoginApp = ({navigation}) =>{
     const loginUsuario = () =>{
 
         if(usuario == ''){
-            //alert('Ingrese el codigo de usuario');
 
             Toast.show({
                 type: 'error',
@@ -63,45 +63,67 @@ export const LoginApp = ({navigation}) =>{
 
             txn.executeSql(
                 `SELECT 
-                            ID_TRANSPORTISTA
-                        ,   CODIGO_USUARIO
-                        ,   PASSWORD
-                        ,   NOMBRE   
+                        ID_TRANSPORTISTA
+                    ,   CODIGO_USUARIO
+                    ,   PASSWORD
+                    ,   NOMBRE   
                 FROM 
                     TRANSPORTISTA 
                 WHERE 
-                        CODIGO_USUARIO  = '${usuario}' 
+                        CODIGO_USUARIO  = '${usuario}'
                     AND PASSWORD        = '${password}' 
                 `,
                 [],
                 (sqlTxn, res) => {
     
                     let len = res.rows.length;
-    
+
                     if (len > 0) {
 
-                        Toast.show({
-                            type: 'success',
-                            text1: 'Sesion Exitosa',
-                            text2: 'Sesion iniciada correctamente',
-                            visibilityTime: 2000
-                        })
+                        database().ref(`/users/${usuario}`).once("value").then(snapshot => {
 
-                        console.log(res.rows);
+                            if(snapshot.val() != ''){
 
-                        const objUsuario   = res.rows.item(0);
+                                let estadoUsuario = snapshot.val().estado;
 
-                        const sesionUsuario = {
-                            'idTransportista'   : objUsuario.ID_TRANSPORTISTA,
-                            'codigoUsuario'     : objUsuario.CODIGO_USUARIO,
-                            'nombreUsuario'     : objUsuario.NOMBRE
-                        };
+                                if(estadoUsuario == 0){             /**Inactivo en el Cloud de Firebase */
 
-                        console.log(sesionUsuario);
+                                    Toast.show({
+                                        type: 'error',
+                                        text1: 'Error Sesion',
+                                        text2: 'Usuario se encuentra inactivo',
+                                        visibilityTime: 2000
+                                    })
+                                    
+                                }else{
+                                    Toast.show({
+                                        type: 'success',
+                                        text1: 'Sesion Exitosa',
+                                        text2: 'Sesion iniciada correctamente',
+                                        visibilityTime: 2000
+                                    })
+            
+                                    const objUsuario   = res.rows.item(0);
+            
+                                    const sesionUsuario = {
+                                        'idTransportista'   : objUsuario.ID_TRANSPORTISTA,
+                                        'codigoUsuario'     : objUsuario.CODIGO_USUARIO,
+                                        'nombreUsuario'     : objUsuario.NOMBRE
+                                    };
+            
+            
+                                    createSessionUser(sesionUsuario);
+                                    navigation.navigate('Menu', {navigation})
+                                }
 
-                        createSessionUser(sesionUsuario);
-                        navigation.navigate('Menu', {navigation})
+                            }else{
+                                console.log('El usuario no existe en la nube');
+                            }
+                        
+                        });
+                        
                     }else{
+
                         //alert('Credenciales incorrectas');
                         Toast.show({
                             type: 'error',

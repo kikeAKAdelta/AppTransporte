@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "287484026268",
+    "firebase_url": "https://apptransporte-e3a08-default-rtdb.firebaseio.com",
+    "project_id": "apptransporte-e3a08",
+    "storage_bucket": "apptransporte-e3a08.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:287484026268:android:4091e5ee0956165f5d3c59",
+        "android_client_info": {
+          "package_name": "com.apptransporte"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDp3_-puO-uBNI9zpwVAri4GpBgzP6iupA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
