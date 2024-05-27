@@ -13,12 +13,21 @@ import { ConsultaEmpleado } from './components/Empleado/ConsultaEmpleado.js';
 import { ExportDataEmpleados } from './components/ExportData/ExportDataUser.js';
 import { LoginApp } from './components/login/Login.js';
 import { CerrarSession } from './components/login/CerrarSesion.js';
+
 import { SolicitudCapa } from './components/solicitud/solicitud.js'
 import { SolicitudList } from './components/solicitud/solicitudList.js'
 import { SolicitudDetalle } from './components/solicitud/solicitudDetalle.js'
 import { SolicitudDetalleRegistro } from './components/solicitud/solicitudDetalleRegistro.js'
 import { SolicitudDetalleList } from './components/solicitud/solicitudDetalleList.js'
+
 import { TransportistaList } from './components/transportista/transportistaList.js'
+import { Transportista } from './components/transportista/transportista.js'
+import { TransportistaEdit } from './components/transportista/transportistaEdit.js'
+
+import { RutaList } from './components/ruta/rutaList.js'
+import { RutaAdd } from './components/ruta/rutaAdd.js'
+import { RutaEdit } from './components/ruta/rutaEdit.js'
+
 import Toast from 'react-native-toast-message';
 import Icon from 'react-native-vector-icons/FontAwesome5';
 
@@ -164,9 +173,17 @@ const App = () => {
         
         <Drawer.Screen name="Transportistas" component={ TransportistaList } options={{
                                                                                   drawerIcon: ({focused, size}) => (
-                                                                                      <Icon name="sign-out-alt" size={20} color="#F70F0F" />
+                                                                                      <Icon name="users" size={20} color="#00b4d8" />
                                                                                     ),
                                                                                 }} 
+
+        />
+
+        <Drawer.Screen name="Rutas" component={ RutaList } options={{
+                                                                      drawerIcon: ({focused, size}) => (
+                                                                          <Icon name="map-marked-alt" size={20} color="#00b4d8" />
+                                                                        ),
+                                                                    }} 
 
         />
 
@@ -246,7 +263,54 @@ const App = () => {
             }
           />
 
-          
+
+          <Stack.Screen name="Transportista" component={ Transportista } 
+            options={
+                  {
+                    title: 'Creacion de Transportista',  
+                    headerStyle: {
+                                backgroundColor: '#00b4d8',
+                    },
+                    headerTintColor: '#fff',
+                  }
+            }
+          />
+
+          <Stack.Screen name="TransportistaEdit" component={ TransportistaEdit } 
+            options={
+                  {
+                    title: 'Editar Transportista',  
+                    headerStyle: {
+                                backgroundColor: '#00b4d8',
+                    },
+                    headerTintColor: '#fff',
+                  }
+            }
+          />
+
+          <Stack.Screen name="RutaAdd" component={ RutaAdd } 
+            options={
+                  {
+                    title: 'Crear Ruta',  
+                    headerStyle: {
+                                backgroundColor: '#00b4d8',
+                    },
+                    headerTintColor: '#fff',
+                  }
+            }
+          />
+
+          <Stack.Screen name="RutaEdit" component={ RutaEdit } 
+            options={
+                  {
+                    title: 'Crear Ruta',  
+                    headerStyle: {
+                                backgroundColor: '#00b4d8',
+                    },
+                    headerTintColor: '#fff',
+                  }
+            }
+          />
 
         </Stack.Navigator>
         <Toast />
