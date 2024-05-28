@@ -83,8 +83,10 @@ export const SolicitudDetalleRegistro = ({navigation, route}) =>{
 
     const validacionRegistroEmpleado = () =>{
 
+        let idSolicitud = route.params.idSolicitud;
+
         /**Primero validamos que no exista en la base de datos */
-        const sql = `SELECT COUNT(*) EXISTE FROM SOLICITUD_DETALLE WHERE CODIGO_EMPLEADO = '${registroEmp}'`
+        const sql = `SELECT COUNT(*) EXISTE FROM SOLICITUD_DETALLE WHERE CODIGO_EMPLEADO = '${registroEmp}' AND ID_SOLICITUD = ${idSolicitud}`
 
         db.transaction(txn => {
             txn.executeSql(

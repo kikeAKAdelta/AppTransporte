@@ -30,6 +30,7 @@ import { RutaEdit } from './components/ruta/rutaEdit.js'
 
 import { RutasTransportistasList } from './components/rutasTransportistas/rutasTransportistasList.js'
 import { RutasTransportistasDetail } from './components/rutasTransportistas/rutasTransportistasDetail.js'
+import { RutasTransportistasAdd } from './components/rutasTransportistas/rutasTransportistasAdd.js'
 
 import Toast from 'react-native-toast-message';
 import Icon from 'react-native-vector-icons/FontAwesome5';
@@ -328,6 +329,18 @@ const App = () => {
             options={
                   {
                     title: 'Detalle de Rutas de Transportistas',  
+                    headerStyle: {
+                                backgroundColor: '#00b4d8',
+                    },
+                    headerTintColor: '#fff',
+                  }
+            }
+          />
+
+          <Stack.Screen name="RutasTransportistasAdd" component={ RutasTransportistasAdd } 
+            options={
+                  {
+                    title: 'Relacion Rutas-Transportista',  
                     headerStyle: {
                                 backgroundColor: '#00b4d8',
                     },

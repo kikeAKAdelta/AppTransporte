@@ -24,10 +24,11 @@ export const RutasTransportistasDetail = ({navigation, route}) =>{
     const isFocused = useIsFocused();               /**Cuando tome el foco, si cambia recargara la funcion en useEffect */
 
     const [ listTransportista, setListTransportista ] = useState([]);
+    const [ isDelete, setIsDelete ] = useState(false);
 
     useEffect(() =>{
         getListaRutasTransportistas();
-    }, [isFocused]);
+    }, [isFocused, route]);
 
     /**
      * Funcion encargada de obtener la lista de transportistas registrados en sistema.
@@ -35,7 +36,7 @@ export const RutasTransportistasDetail = ({navigation, route}) =>{
     const getListaRutasTransportistas = () =>{
 
         let codigoTransportista = route.params.usuario[0];
-        console.log(route.params.usuario);
+        console.log('codigo usuario',route.params.usuario[0]);
 
         const sql = `SELECT 
                             TR.ID_RUTA
@@ -118,7 +119,7 @@ export const RutasTransportistasDetail = ({navigation, route}) =>{
                             visibilityTime: 2000
                         })
 
-                        navigation.navigate('RutasTransportistasList', {navigation})
+                        getListaRutasTransportistas();
 
                     },
                     error =>{
@@ -186,7 +187,7 @@ export const RutasTransportistasDetail = ({navigation, route}) =>{
                     <View style={[styles.containerButtonCrear]}>
                             <TouchableOpacity
                                 style={[styles.buttonCrear, styles.boxShadow]}
-                                onPress= {() => navigation.navigate('Transportista')}
+                                onPress= {() => navigation.navigate('RutasTransportistasAdd', { codigoTransportista: route.params.usuario[0], nombreTransportista: route.params.usuario[1]})}
                             >
 
                                 <Text style={styles.textTouchable}>
@@ -231,6 +232,7 @@ export const RutasTransportistasDetail = ({navigation, route}) =>{
                         </Text>
                     </View>
 
+                    <View style={styles.containerElements}>
                     <View style={styles.containerButtonBack}>
                         <TouchableOpacity
                             style={[styles.buttonBack, styles.boxShadow]}
@@ -243,6 +245,22 @@ export const RutasTransportistasDetail = ({navigation, route}) =>{
 
                         </TouchableOpacity>
                     </View>
+
+                    <View style={[styles.containerButtonCrearElse]}>
+                            <TouchableOpacity
+                                style={[styles.buttonCrearElse, styles.boxShadow]}
+                                onPress= {() => navigation.navigate('RutasTransportistasAdd', { codigoTransportista: route.params.usuario[0], nombreTransportista: route.params.usuario[1]})}
+                            >
+
+                                <Text style={styles.textTouchable}>
+                                    <Icon name="plus-circle" size={18} color="#fff" />  Agregar
+                                </Text>
+
+                            </TouchableOpacity>
+                    </View>
+                    </View>
+
+                    
 
                 </View>
         ;
@@ -355,8 +373,7 @@ const styles = StyleSheet.create({
         alignItems: 'center'
     },
     containerButtonBack:{
-        alignItems: 'center',
-        width: '100%',
+        width: '30%',
         marginTop: 40,
         marginBottom: 20
     },
@@ -380,6 +397,11 @@ const styles = StyleSheet.create({
         alignItems: 'flex-end',
         marginBottom: 15
     },
+    containerButtonCrearElse:{
+        width: '30%',
+        marginTop: 40,
+        marginBottom: 20
+    },
     buttonCrear: {
         height: 30,
         width: '35%',
@@ -390,6 +412,16 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: '#74E42F'
     },
+    buttonCrearElse: {
+        width: '100%',
+        backgroundColor: '#59B720',
+        borderRadius: 5,
+        borderWidth: 1,
+        borderColor: '#74E42F',
+        height: 30,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
     row: { 
             flexDirection: 'row'
         ,   backgroundColor: '#fff' 
@@ -397,6 +429,12 @@ const styles = StyleSheet.create({
     textName:{
         fontWeight: 'bold',
         fontSize: 15
-    }
+    },
+    containerElements:{
+        justifyContent: 'center',
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        padding: 3,
+    },
   
 });
