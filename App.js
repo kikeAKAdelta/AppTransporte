@@ -28,6 +28,9 @@ import { RutaList } from './components/ruta/rutaList.js'
 import { RutaAdd } from './components/ruta/rutaAdd.js'
 import { RutaEdit } from './components/ruta/rutaEdit.js'
 
+import { RutasTransportistasList } from './components/rutasTransportistas/rutasTransportistasList.js'
+import { RutasTransportistasDetail } from './components/rutasTransportistas/rutasTransportistasDetail.js'
+
 import Toast from 'react-native-toast-message';
 import Icon from 'react-native-vector-icons/FontAwesome5';
 
@@ -187,6 +190,14 @@ const App = () => {
 
         />
 
+        <Drawer.Screen name="Rutas Transportista" component={ RutasTransportistasList } options={{
+                                                                      drawerIcon: ({focused, size}) => (
+                                                                          <Icon name="map" size={20} color="#00b4d8" solid />
+                                                                        ),
+                                                                    }} 
+
+        />
+
         <Drawer.Screen name="Cerrar Sesion" component={ CerrarSession } options={{
                                                                                   drawerIcon: ({focused, size}) => (
                                                                                       <Icon name="sign-out-alt" size={20} color="#F70F0F" />
@@ -304,6 +315,19 @@ const App = () => {
             options={
                   {
                     title: 'Crear Ruta',  
+                    headerStyle: {
+                                backgroundColor: '#00b4d8',
+                    },
+                    headerTintColor: '#fff',
+                  }
+            }
+          />
+
+
+          <Stack.Screen name="RutasTransportistasDetail" component={ RutasTransportistasDetail } 
+            options={
+                  {
+                    title: 'Detalle de Rutas de Transportistas',  
                     headerStyle: {
                                 backgroundColor: '#00b4d8',
                     },

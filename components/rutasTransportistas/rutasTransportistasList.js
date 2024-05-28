@@ -19,29 +19,32 @@ const db  = openDatabase(
     }
 );
 
-export const RutaList = ({navigation, route}) =>{
+export const RutasTransportistasList = ({navigation, route}) =>{
 
     const isFocused = useIsFocused();               /**Cuando tome el foco, si cambia recargara la funcion en useEffect */
 
-    const [ listRuta, setListRuta ] = useState([]);
+    const [ listTransportista, setListTransportista ] = useState([]);
 
     useEffect(() =>{
-        getListaRutas();
+        getListaTransportistas();
     }, [isFocused]);
 
     /**
-     * Funcion encargada de obtener la lista de rutas registrados en sistema.
+     * Funcion encargada de obtener la lista de transportistas registrados en sistema.
      */
-    const getListaRutas = () =>{
+    const getListaTransportistas = () =>{
 
-        const sql = `SELECT 
-                            ID_RUTA
-                        ,	CODIGO
-                        ,	DESCRIPCION
+        const sql = `SELECT
+                            ID_TRANSPORTISTA
+                        ,	NOMBRE
+                        ,	DUI
+                        ,	PLACA
+                        ,	PASSWORD
+                        ,	CODIGO_USUARIO
                     FROM 
-                        RUTA
+                        TRANSPORTISTA
                     ORDER BY
-                        ID_RUTA ASC
+                        CODIGO_USUARIO ASC
         `
         
         db.transaction(txn => {
@@ -60,13 +63,13 @@ export const RutaList = ({navigation, route}) =>{
                             results.push(item);
                         }
 
-                        setListRuta(results);
+                        setListTransportista(results);
                     }else{
-                        console.log('No se encontraron rutas registradas');
+                        console.log('No se encontraron transportista registrados');
                     }
                 },
                 error => {
-                console.log("Error obteniendo lista de rutas registradas " + error.message);
+                console.log("Error obteniendo lista de transportistas registrados " + error.message);
             }
             )
         });
@@ -76,37 +79,41 @@ export const RutaList = ({navigation, route}) =>{
     let table = <Table></Table>;
     let alert = <View></View>;
 
-    if(listRuta.length > 0){
+    if(listTransportista.length > 0){
 
-        let rutas      = [];
-        let ruta       = [];
+        let transportistas      = [];
+        let transportista       = [];
         let arrItem             = [];
 
-        let cantidad = listRuta.length;
+        let cantidad = listTransportista.length;
 
         for(let index = 0; index < cantidad;index++){
 
-            let idRuta          = listRuta[index].ID_RUTA;
-            let codigo          = listRuta[index].CODIGO;
-            let descripcion     = listRuta[index].DESCRIPCION;
+            let idTransportista = listTransportista[index].ID_TRANSPORTISTA;
+            let nombre          = listTransportista[index].NOMBRE;
+            let dui             = listTransportista[index].DUI;
+            let placa           = listTransportista[index].PLACA;
+            let password        = listTransportista[index].PASSWORD;
+            let codigoUsuario   = listTransportista[index].CODIGO_USUARIO;
 
-            ruta.push(codigo);
-            ruta.push(descripcion);
-            ruta.push(idRuta);
+            transportista.push(codigoUsuario);
+            transportista.push(nombre);
+            transportista.push(dui);
+            transportista.push(placa);
 
-            rutas.push(ruta);
-            ruta = [];
+            transportistas.push(transportista);
+            transportista = [];
 
         }
 
-        const thead     = ['Ruta','Descripcion', 'Editar'];
-        const widthArr  = [75, 150, 80, 80];
+        const thead = ['Codigo', 'Nombre','Placa', 'Editar'];
+        const widthArr = [75, 150, 80, 80];
 
         const buttonUpdate = (data, index) => (
-            <TouchableOpacity onPress={() => navigation.navigate('RutaEdit',{ usuario: data}) }>
+            <TouchableOpacity onPress={() => navigation.navigate('RutasTransportistasDetail',{ usuario: data}) }>
               <View style={styles.containerBtn}>
                 <Text style={[styles.btnText]}>
-                    <Icon name="edit" size={17} color="#000" solid />
+                    <Icon name="tasks" size={22} color="#000" solid />
                 </Text>
               </View>
             </TouchableOpacity>
@@ -117,32 +124,20 @@ export const RutaList = ({navigation, route}) =>{
                 <View style={[styles.containerInner, styles.boxShadow]}>
 
                     <View style={styles.containerTextLabel}>
-                        <Text style={[styles.textLabel, styles.textShadow]}>Lista de Rutas</Text>
+                        <Text style={[styles.textLabel, styles.textShadow]}>Lista de Transportistas y Rutas</Text>
                     </View>
 
-                    <View style={styles.containerButtonCrear}>
-                            <TouchableOpacity
-                                style={[styles.buttonCrear, styles.boxShadow]}
-                                onPress= {() => navigation.navigate('RutaAdd')}
-                            >
-
-                                <Text style={styles.textTouchable}>
-                                    <Icon name="plus-circle" size={18} color="#fff" />  Agregar
-                                </Text>
-
-                            </TouchableOpacity>
-                    </View>
                     
                         <Table borderStyle={{borderWidth: 2, borderColor: '#c8e1ff'}}>
                             <Row data={thead} style={styles.head} textStyle={styles.textHead} />
 
                             {
-                                rutas.map((rowData, index) => (
+                                transportistas.map((rowData, index) => (
 
                                         <TableWrapper key={index} style={styles.row}>
                                         {
                                             rowData.map((cellData, cellIndex) => (
-                                                <Cell key={cellIndex} data={cellIndex === 2 ? buttonUpdate(rowData, cellIndex) : cellData} textStyle={styles.tableBody}/>
+                                                <Cell key={cellIndex} data={cellIndex === 3 ? buttonUpdate(rowData, cellIndex) : cellData} textStyle={styles.tableBody}/>
                                             ))
                                         }
                                         </TableWrapper>
@@ -164,7 +159,7 @@ export const RutaList = ({navigation, route}) =>{
 
                     <View style={[styles.alertDanger]}>
                         <Text style={styles.textDanger}>
-                            <Icon name="exclamation-triangle" size={15} color="#fff" /> No existen rutas registradas.
+                            <Icon name="exclamation-triangle" size={15} color="#fff" /> No existen transportistas registrados.
                         </Text>
                     </View>
 

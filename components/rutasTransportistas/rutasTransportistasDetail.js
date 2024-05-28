@@ -19,34 +19,43 @@ const db  = openDatabase(
     }
 );
 
-export const RutaList = ({navigation, route}) =>{
+export const RutasTransportistasDetail = ({navigation, route}) =>{
 
     const isFocused = useIsFocused();               /**Cuando tome el foco, si cambia recargara la funcion en useEffect */
 
-    const [ listRuta, setListRuta ] = useState([]);
+    const [ listTransportista, setListTransportista ] = useState([]);
 
     useEffect(() =>{
-        getListaRutas();
+        getListaRutasTransportistas();
     }, [isFocused]);
 
     /**
-     * Funcion encargada de obtener la lista de rutas registrados en sistema.
+     * Funcion encargada de obtener la lista de transportistas registrados en sistema.
      */
-    const getListaRutas = () =>{
+    const getListaRutasTransportistas = () =>{
+
+        let codigoTransportista = route.params.usuario[0];
+        console.log(route.params.usuario);
 
         const sql = `SELECT 
-                            ID_RUTA
-                        ,	CODIGO
-                        ,	DESCRIPCION
+                            TR.ID_RUTA
+                        ,   TR.ID_TRANSPORTISTA
+                        ,   TP.CODIGO_USUARIO
+                        ,   (SELECT CODIGO FROM RUTA WHERE ID_RUTA = TR.ID_RUTA) CODIGO_RUTA
+                        ,   (SELECT DESCRIPCION FROM RUTA WHERE ID_RUTA = TR.ID_RUTA) DESCRIPCION_RUTA
                     FROM 
-                        RUTA
-                    ORDER BY
-                        ID_RUTA ASC
+                        TRANSPORTISTA_RUTA TR
+                    INNER JOIN
+                        TRANSPORTISTA TP
+                    ON
+                        TR.ID_TRANSPORTISTA = TP.ID_TRANSPORTISTA
+                    WHERE
+                        TP.CODIGO_USUARIO = ${codigoTransportista}
         `
         
         db.transaction(txn => {
             txn.executeSql(
-                sql, 
+                sql,
                 [],
                 (sqlTxn, res) => {
                     
@@ -60,53 +69,103 @@ export const RutaList = ({navigation, route}) =>{
                             results.push(item);
                         }
 
-                        setListRuta(results);
+                        setListTransportista(results);
                     }else{
-                        console.log('No se encontraron rutas registradas');
+                        console.log('No se encontraron rutas de transportista registrados');
                     }
                 },
                 error => {
-                console.log("Error obteniendo lista de rutas registradas " + error.message);
+                console.log("Error obteniendo lista de rutas de transportistas registrados " + error.message);
             }
             )
         });
+    }
+
+    /**
+     * Funcion encargada de eliminar una ruta de un transportista.
+     * @param {*} data Informacion de la ruta y el transportista.
+     */
+    const eliminarRutaTransportista = (data) =>{
+
+        let arrRutaTransport = data[2];
+
+        let idRuta          = arrRutaTransport[0];
+        let idTransportista = arrRutaTransport[1];
+
+        let usuario = [
+                idRuta
+            ,   idTransportista 
+        ];
+
+        const insertQuery = `
+            DELETE FROM
+                TRANSPORTISTA_RUTA 
+            WHERE
+                    ID_RUTA             = ?
+                AND ID_TRANSPORTISTA    = ?
+        `;
+
+        db.transaction(txn =>{
+            txn.executeSql(
+                    insertQuery,
+                    usuario,
+                    (sqlTxn, res) =>{
+                        
+                        Toast.show({
+                            type: 'success',
+                            text1: 'Eliminacion de Ruta de Transportista',
+                            text2: 'Registro eliminado correctamente',
+                            visibilityTime: 2000
+                        })
+
+                        navigation.navigate('RutasTransportistasList', {navigation})
+
+                    },
+                    error =>{
+                        console.log("Error actualizando ruta " + error.message);
+                    }
+                );
+            }
+        );
     }
 
 
     let table = <Table></Table>;
     let alert = <View></View>;
 
-    if(listRuta.length > 0){
+    if(listTransportista.length > 0){
 
-        let rutas      = [];
-        let ruta       = [];
+        let transportistas      = [];
+        let transportista       = [];
         let arrItem             = [];
 
-        let cantidad = listRuta.length;
+        let cantidad = listTransportista.length;
 
         for(let index = 0; index < cantidad;index++){
 
-            let idRuta          = listRuta[index].ID_RUTA;
-            let codigo          = listRuta[index].CODIGO;
-            let descripcion     = listRuta[index].DESCRIPCION;
+            let idRuta              = listTransportista[index].ID_RUTA;
+            let idTransportista     = listTransportista[index].ID_TRANSPORTISTA;
+            let codigoUsuario       = listTransportista[index].CODIGO_USUARIO;
+            let codigoRuta          = listTransportista[index].CODIGO_RUTA;
+            let descripcionRuta     = listTransportista[index].DESCRIPCION_RUTA;
 
-            ruta.push(codigo);
-            ruta.push(descripcion);
-            ruta.push(idRuta);
-
-            rutas.push(ruta);
-            ruta = [];
+            transportista.push(codigoRuta);
+            transportista.push(descripcionRuta);
+            transportista.push([idRuta, idTransportista]);
+            
+            transportistas.push(transportista);
+            transportista = [];
 
         }
 
-        const thead     = ['Ruta','Descripcion', 'Editar'];
-        const widthArr  = [75, 150, 80, 80];
+        const thead     = ['Ruta', 'Descripcion','Eliminar'];
+        const widthArr  = [75, 150, 80];
 
-        const buttonUpdate = (data, index) => (
-            <TouchableOpacity onPress={() => navigation.navigate('RutaEdit',{ usuario: data}) }>
+        const buttonDelete = (data, index) => (
+            <TouchableOpacity onPress={() => eliminarRutaTransportista(data) }>
               <View style={styles.containerBtn}>
                 <Text style={[styles.btnText]}>
-                    <Icon name="edit" size={17} color="#000" solid />
+                    <Icon name="trash" size={22} color="#fff" solid />
                 </Text>
               </View>
             </TouchableOpacity>
@@ -117,13 +176,17 @@ export const RutaList = ({navigation, route}) =>{
                 <View style={[styles.containerInner, styles.boxShadow]}>
 
                     <View style={styles.containerTextLabel}>
-                        <Text style={[styles.textLabel, styles.textShadow]}>Lista de Rutas</Text>
+                        <Text style={[styles.textLabel, styles.textShadow]}>Detalle de Rutas de Transportista</Text>
                     </View>
 
-                    <View style={styles.containerButtonCrear}>
+                    <View style={[styles.containerTextName]}>
+                        <Text style={[styles.textName]}>Usuario: { route.params.usuario[1] } </Text>
+                    </View>
+
+                    <View style={[styles.containerButtonCrear]}>
                             <TouchableOpacity
                                 style={[styles.buttonCrear, styles.boxShadow]}
-                                onPress= {() => navigation.navigate('RutaAdd')}
+                                onPress= {() => navigation.navigate('Transportista')}
                             >
 
                                 <Text style={styles.textTouchable}>
@@ -137,12 +200,12 @@ export const RutaList = ({navigation, route}) =>{
                             <Row data={thead} style={styles.head} textStyle={styles.textHead} />
 
                             {
-                                rutas.map((rowData, index) => (
+                                transportistas.map((rowData, index) => (
 
-                                        <TableWrapper key={index} style={styles.row}>
+                                        <TableWrapper key={index} style={styles.row} >
                                         {
                                             rowData.map((cellData, cellIndex) => (
-                                                <Cell key={cellIndex} data={cellIndex === 2 ? buttonUpdate(rowData, cellIndex) : cellData} textStyle={styles.tableBody}/>
+                                                <Cell key={cellIndex} data={cellIndex === 2 ? buttonDelete(rowData, cellIndex) : cellData} textStyle={styles.tableBody}/>
                                             ))
                                         }
                                         </TableWrapper>
@@ -164,7 +227,7 @@ export const RutaList = ({navigation, route}) =>{
 
                     <View style={[styles.alertDanger]}>
                         <Text style={styles.textDanger}>
-                            <Icon name="exclamation-triangle" size={15} color="#fff" /> No existen rutas registradas.
+                            <Icon name="exclamation-triangle" size={15} color="#fff" /> No existen transportistas registrados.
                         </Text>
                     </View>
 
@@ -253,6 +316,8 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center'
     },
+    containerTextName:{
+    },
     alertDanger:{
         backgroundColor: '#E82D2D',
         borderRadius: 5,
@@ -263,10 +328,10 @@ const styles = StyleSheet.create({
         fontWeight: 'bold'
     },
     containerBtn: { 
-            backgroundColor: '#ffc107'
+            backgroundColor: '#E81111'
         ,   justifyContent: 'center'
         ,   borderRadius: 10
-        ,   borderColor: '#F0B813'
+        ,   borderColor: '#F31B1B'
         ,   borderWidth: 1
         ,   width: '95%'
         ,   margin: 3
@@ -274,8 +339,8 @@ const styles = StyleSheet.create({
     btnText: { 
             textAlign: 'center'
         ,   verticalAlign: 'middle'
-        ,   color: '#000' 
-        ,   backgroundColor: '#ffc107'
+        ,   color: '#fff' 
+        ,   backgroundColor: '#E81111'
         ,   borderRadius: 10
         ,   fontWeight: 'bold'
         ,   height: 30
@@ -329,6 +394,9 @@ const styles = StyleSheet.create({
             flexDirection: 'row'
         ,   backgroundColor: '#fff' 
     },
-    
+    textName:{
+        fontWeight: 'bold',
+        fontSize: 15
+    }
   
 });
