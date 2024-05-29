@@ -93,9 +93,33 @@ export const RutaEdit = ({navigation, route}) =>{
             })
 
             return;
-        }
+        }    
+        
+        /**Validaremos que no exista el mismo codigo de ruta en la BD */
+        let sql = `SELECT COUNT(*) EXISTE FROM RUTA WHERE UPPER(CODIGO) = '${codigo.toUpperCase()}' AND ID_RUTA <> ${idRuta}`;
 
-        editarRuta();        
+        db.transaction(txn => {
+            txn.executeSql(
+                    sql
+                ,   []
+                ,   (sqlTxn, res) => {
+
+                    let len = res.rows.item(0).EXISTE;
+
+                    if(len == 0){
+                        editarRuta();         /**Registramos la nueva Ruta */
+                    }else{
+                        /**Si existe el codigo de ruta entonces no creamos */
+                        Toast.show({
+                            type: 'error',
+                            text1: 'Error Creacion de Ruta',
+                            text2: 'Codigo de ruta ya existe',
+                            visibilityTime: 3500
+                        })
+                    }
+                }
+            );
+        });
         
     }
 

@@ -158,7 +158,7 @@ const App = () => {
                                                                                             }} 
         
         /> */}
-        <Drawer.Screen name="Listado Solicitud" component={ SolicitudList }  options={{
+        <Drawer.Screen name="Solicitudes" component={ SolicitudList }  options={{
                                                                                         drawerIcon: ({focused, size}) => (
                                                                                             <Icon name="clipboard-list" size={20} color="#00b4d8" />
                                                                                           ),

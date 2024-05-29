@@ -80,9 +80,9 @@ export const LoginApp = ({navigation}) =>{
 
                     if (len > 0) {
 
-                        database().ref(`/users/${usuario}`).once("value").then(snapshot => {
+                        database().ref(`/users/${usuario}`).once("value").then(snapshot => {        /**Implementacion de Firebase */
 
-                            if(snapshot.val() != ''){
+                            if((snapshot.val() != '') && (snapshot.val() != null)){
 
                                 let estadoUsuario = snapshot.val().estado;
 
@@ -117,10 +117,27 @@ export const LoginApp = ({navigation}) =>{
                                 }
 
                             }else{
-                                console.log('El usuario no existe en la nube');
+
+                                Toast.show({
+                                    type: 'error',
+                                    text1: 'Error Sesion',
+                                    text2: 'Usuario no existe en la nube',
+                                    visibilityTime: 2000
+                                })
                             }
                         
-                        });
+                        })
+                        .catch(error => {
+                            Toast.show({
+                                type: 'error',
+                                text1: 'Error Sesion',
+                                text2: `${error}`,
+                                visibilityTime: 2000
+                            })
+
+                            console.log(error);
+                        })
+                        ;
                         
                     }else{
 

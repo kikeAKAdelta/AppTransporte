@@ -229,7 +229,7 @@ export const Transportista = ({navigation}) =>{
 
                     <View style={styles.containerSection}>
                         <Text style={styles.textStyle}>DUI:</Text>
-                        <TextInput 
+                        <TextInput
                             style = {styles.input} 
                             placeholder='Dui' 
                             placeholderTextColor= '#CFD0D0'
@@ -241,13 +241,14 @@ export const Transportista = ({navigation}) =>{
 
                     <View style={styles.containerSection}>
                         <Text style={styles.textStyle}>Placa:</Text>
-                        <TextInput 
+                        <TextInput
                             style = {styles.input} 
                             placeholder='Placa' 
                             placeholderTextColor= '#CFD0D0'
                             onChangeText = { (text) => setPlaca(text) }
-                            keyboardType="numeric"
+                            keyboardType="text"
                             value = {placa}
+                            autoCapitalize="characters"
                         />
                     </View>
 

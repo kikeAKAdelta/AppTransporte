@@ -167,10 +167,7 @@ export const RutasTransportistasAdd = ({navigation, route}) =>{
         const objUser = await getSessionUser({navigation});
 
         let codigoTransportista = route.params.codigoTransportista;
-        let idRuta          = selectedRutaValue;
-
-        console.log(codigoTransportista);
-        console.log(idRuta);
+        let idRuta              = selectedRutaValue;
 
         if(codigoTransportista == '' || codigoTransportista == null){
 
@@ -197,6 +194,8 @@ export const RutasTransportistasAdd = ({navigation, route}) =>{
         }
 
 
+        /**Funciones en Cadena */
+        /**Primero Obtenemos el ID del Transportista por medio del codigo del transportista */
         db.transaction(txn => {
 
             txn.executeSql(
@@ -221,44 +220,75 @@ export const RutasTransportistasAdd = ({navigation, route}) =>{
                             ,   idRuta
                         ];
 
-                        const insertQuery = `
-                            INSERT INTO TRANSPORTISTA_RUTA 
-                                (       
-                                        ID_TRANSPORTISTA
-                                    ,   ID_RUTA
-                                )
-                            VALUES (?, ?)
-                        `;
+                        db.transaction(txn => {
 
-                        db.transaction(txn =>{
                             txn.executeSql(
-                                    insertQuery,
-                                    rutaTransportista,
-                                    (sqlTxn, res) =>{
-                                        
+                                `SELECT 
+                                    COUNT(*) EXISTE
+                                FROM
+                                    TRANSPORTISTA_RUTA
+                                WHERE
+                                        ID_TRANSPORTISTA    = ${idTransportista}
+                                    AND ID_RUTA             = ${idRuta}
+                                `,
+                                [],
+                                (sqlTxn, res) => {
+                                    
+                                    let len = res.rows.item(0).EXISTE;
+                    
+                                    if (len == 0) {
+
+                                        const insertQuery = `
+                                            INSERT INTO TRANSPORTISTA_RUTA 
+                                                (       
+                                                        ID_TRANSPORTISTA
+                                                    ,   ID_RUTA
+                                                )
+                                            VALUES (?, ?)
+                                        `;
+
+                                        db.transaction(txn =>{
+                                            txn.executeSql(
+                                                    insertQuery,
+                                                    rutaTransportista,
+                                                    (sqlTxn, res) =>{
+                                                        
+                                                        Toast.show({
+                                                            type: 'success',
+                                                            text1: 'Creacion de Relacion de Ruta Transportista',
+                                                            text2: 'Relacion creada correctamente',
+                                                            visibilityTime: 2000
+                                                        })
+
+                                                        navigation.navigate('RutasTransportistasDetail', { usuario: [codigoTransportista, route.params.nombreTransportista] } )
+
+                                                    },
+                                                    error1 =>{
+                                                        console.log("Error creando solicitud " + error1.message);
+                                                    }
+                                                );
+                                            }
+                                        );
+
+                                    }else{
                                         Toast.show({
-                                            type: 'success',
-                                            text1: 'Creacion de Relacion de Ruta Transportista',
-                                            text2: 'Relacion creada correctamente',
+                                            type: 'error',
+                                            text1: 'Relacion de Ruta Transportista Existe',
+                                            text2: 'El transportista ya tiene relacionada la ruta seleccionada',
                                             visibilityTime: 2000
                                         })
-
-                                        navigation.navigate('RutasTransportistasDetail', { usuario: [codigoTransportista, route.params.nombreTransportista] } )
-
-                                    },
-                                    error =>{
-                                        console.log("Error creando solicitud " + error.message);
                                     }
-                                );
-                            }
-                        );
+                                }
+                            )
+                        });
+
                         
                     }else{
-                        console.log('No se obtuvieron rutas');
+                        console.log('No se obtuvo ID de Transportista');
                     }
                 },
-                    error => {
-                    console.log("Erro obteniendo las rutas para asignar a transportista !!" + error.message);
+                    error2 => {
+                    console.log("Error obteniendo el ID transportista !!" + error2.message);
                 },
             );
         });

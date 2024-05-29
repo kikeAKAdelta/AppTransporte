@@ -372,7 +372,7 @@ export const SolicitudCapa = ({navigation}) =>{
                     <View style={styles.containerButtonBack}>
                             <TouchableOpacity
                                 style={[styles.buttonBack, styles.boxShadow]}
-                                onPress= {() => navigation.navigate('Listado Solicitud')}
+                                onPress= {() => navigation.navigate('Solicitudes')}
                             >
 
                                 <Text style={styles.textTouchable}>
