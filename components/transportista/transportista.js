@@ -5,6 +5,7 @@ import Toast from 'react-native-toast-message';
 import { createSessionUser, existSessionUser, getSessionUser } from './../login/Session';
 import { useIsFocused } from '@react-navigation/native';
 import RNPickerSelect from 'react-native-picker-select';
+import database from '@react-native-firebase/database';
 
 import {
     StyleSheet,    Text,    useColorScheme,    View, Button, TouchableOpacity, TextInput, ScrollView
@@ -130,7 +131,73 @@ export const Transportista = ({navigation}) =>{
             return;
         }
 
-        registroUsuario();        
+        /**Validaremos que no exista el mismo codigo de ruta en la BD Local */
+        let sql = `SELECT COUNT(*) EXISTE FROM TRANSPORTISTA WHERE CODIGO_USUARIO = '${codigo}'`;
+
+        db.transaction(txn => {
+            txn.executeSql(
+                    sql
+                ,   []
+                ,   (sqlTxn, res) => {
+
+                    let len = res.rows.item(0).EXISTE;
+
+                    if(len == 0){
+
+                        /**Validaremos que el codigo de usuario ingresado, haya sido registrado previamente en el Cloud (Firebase) */
+                        database().ref(`/users/${codigo}`).once("value").then(snapshot => {        /**Implementacion de Firebase */
+
+                            if((snapshot.val() != '') && (snapshot.val() != null)){
+
+                                let estadoUsuario = snapshot.val().estado;
+
+                                if(estadoUsuario == 0){             /**Inactivo en el Cloud de Firebase */
+
+                                    Toast.show({
+                                        type: 'error',
+                                        text1: 'Error Codigo de Usuario',
+                                        text2: 'Codigo de Usuario se encuentra inactivo, contactar a RRHH',
+                                        visibilityTime: 5000
+                                    })
+                                    
+                                }else{
+                                    registroUsuario();         /**Registramos la nueva Ruta */
+                                }
+
+                            }else{
+
+                                Toast.show({
+                                    type: 'error',
+                                    text1: 'Error Codigo de Usuario en la Nube',
+                                    text2: 'Codigo de Usuario no existe en la nube, contactar a RRHH',
+                                    visibilityTime: 5000
+                                })
+                            }
+                        
+                        })
+                        .catch(error => {
+                            Toast.show({
+                                type: 'error',
+                                text1: 'Error Sesion',
+                                text2: `${error}`,
+                                visibilityTime: 2000
+                            })
+
+                            console.log(error);
+                        });
+
+                    }else{
+                        /**Si existe el codigo de ruta entonces no creamos */
+                        Toast.show({
+                            type: 'error',
+                            text1: 'Error Creacion de Transportista',
+                            text2: 'Codigo de Usuario ya existe',
+                            visibilityTime: 4000
+                        })
+                    }
+                }
+            );
+        });
         
     }
 
@@ -203,7 +270,7 @@ export const Transportista = ({navigation}) =>{
                         <View style={styles.containerButtonBack}>
                                 <TouchableOpacity
                                     style={[styles.buttonBack, styles.boxShadow]}
-                                    onPress= {() => navigation.navigate('TransportistaList')}
+                                    onPress= {() => navigation.navigate('Transportistas')}
                                 >
 
                                     <Text style={styles.textTouchable}>

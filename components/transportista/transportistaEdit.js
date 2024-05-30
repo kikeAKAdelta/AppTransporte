@@ -5,6 +5,7 @@ import Toast from 'react-native-toast-message';
 import { createSessionUser, existSessionUser, getSessionUser } from '../login/Session';
 import { useIsFocused } from '@react-navigation/native';
 import RNPickerSelect from 'react-native-picker-select';
+import database from '@react-native-firebase/database';
 
 import {
     StyleSheet,    Text,    useColorScheme,    View, Button, TouchableOpacity, TextInput, ScrollView
@@ -27,6 +28,7 @@ export const TransportistaEdit = ({navigation, route}) =>{
     const [ password, setPassword]          = useState('');
     const [ placa, setPlaca]                = useState('');
     const [ codigo, setCodigo]              = useState('');
+    const [ idTransportista, setIdTransportista] = useState('');
     const [ userSession, setUserSession ]   = useState('');
 
     /**Obtenemos todas las rutas del usuario logueado en Sistema cuando ingrese por primera vez al componente */
@@ -35,8 +37,9 @@ export const TransportistaEdit = ({navigation, route}) =>{
 
         setCodigo(''+route.params.usuario[0]);
         setNombre(route.params.usuario[1]);
-        setDui(route.params.usuario[2]);
-        setPlaca(route.params.usuario[3]);
+        setPlaca(route.params.usuario[2]);
+        setDui(route.params.usuario[3][0]);
+        setIdTransportista(route.params.usuario[3][1]);
 
     }, [isFocused] );
 
@@ -60,20 +63,6 @@ export const TransportistaEdit = ({navigation, route}) =>{
     const validarUsuario = async () =>{
 
         const objUser = await getSessionUser({navigation});
-
-        let idTransportista = objUser.idTransportista;
-        
-        if(idTransportista == '' || idTransportista == null){
-
-            Toast.show({
-                type: 'error',
-                text1: 'Codigo de Transportista',
-                text2: 'No se ha detectado el usuario de sistema',
-                visibilityTime: 2000
-            })
-
-            return;
-        }
 
         if(nombre == '' || nombre == null){
 
@@ -111,7 +100,85 @@ export const TransportistaEdit = ({navigation, route}) =>{
             return;
         }
 
-        editarUsuario();        
+        if(codigo == '' || codigo == null){
+
+            Toast.show({
+                type: 'error',
+                text1: 'Codigo de Transportista',
+                text2: 'Ingrese el codigo del transportista',
+                visibilityTime: 2000
+            })
+
+            return;
+        }
+
+        /**Validaremos que no exista el mismo codigo de ruta en la BD */
+        let sql = `SELECT COUNT(*) EXISTE FROM TRANSPORTISTA WHERE CODIGO_USUARIO = '${codigo}' AND ID_TRANSPORTISTA <> ${idTransportista}`;
+
+        db.transaction(txn => {
+            txn.executeSql(
+                    sql
+                ,   []
+                ,   (sqlTxn, res) => {
+
+                    let len = res.rows.item(0).EXISTE;
+
+                    if(len == 0){
+
+                        /**Validaremos que el codigo de usuario ingresado, haya sido registrado previamente en el Cloud (Firebase) */
+                        database().ref(`/users/${codigo}`).once("value").then(snapshot => {        /**Implementacion de Firebase */
+
+                            if((snapshot.val() != '') && (snapshot.val() != null)){
+
+                                let estadoUsuario = snapshot.val().estado;
+
+                                if(estadoUsuario == 0){             /**Inactivo en el Cloud de Firebase */
+
+                                    Toast.show({
+                                        type: 'error',
+                                        text1: 'Error Codigo de Usuario',
+                                        text2: 'Codigo de Usuario se encuentra inactivo, contactar a RRHH',
+                                        visibilityTime: 5000
+                                    })
+                                    
+                                }else{
+                                    editarUsuario();         /**Editamos la nueva Ruta */
+                                }
+
+                            }else{
+
+                                Toast.show({
+                                    type: 'error',
+                                    text1: 'Error Codigo de Usuario en la Nube',
+                                    text2: 'Codigo de Usuario no existe en la nube, contactar a RRHH',
+                                    visibilityTime: 5000
+                                })
+                            }
+                        
+                        })
+                        .catch(error => {
+                            Toast.show({
+                                type: 'error',
+                                text1: 'Error Sesion',
+                                text2: `${error}`,
+                                visibilityTime: 2000
+                            })
+
+                            console.log(error);
+                        });
+                        
+                    }else{
+                        /**Si existe el codigo de ruta entonces no creamos */
+                        Toast.show({
+                            type: 'error',
+                            text1: 'Error Actualizacion de Transportista',
+                            text2: 'Codigo de Usuario ya existe en otro usuario',
+                            visibilityTime: 4000
+                        })
+                    }
+                }
+            );
+        });     
         
     }
 
@@ -125,6 +192,7 @@ export const TransportistaEdit = ({navigation, route}) =>{
             ,   dui
             ,   placa
             ,   codigo
+            ,   idTransportista
         ];
 
         const updateQuery = `
@@ -133,8 +201,9 @@ export const TransportistaEdit = ({navigation, route}) =>{
                         NOMBRE  = ?
                     ,   DUI     = ?
                     ,   PLACA   = ?
+                    ,   CODIGO_USUARIO   = ?
             WHERE
-                CODIGO_USUARIO = ?
+                ID_TRANSPORTISTA = ?
         `;
 
         db.transaction(txn =>{
@@ -181,7 +250,7 @@ export const TransportistaEdit = ({navigation, route}) =>{
                         <View style={styles.containerButtonBack}>
                                 <TouchableOpacity
                                     style={[styles.buttonBack, styles.boxShadow]}
-                                    onPress= {() => navigation.navigate('TransportistaList')}
+                                    onPress= {() => navigation.navigate('Transportistas')}
                                 >
 
                                     <Text style={styles.textTouchable}>
@@ -224,8 +293,21 @@ export const TransportistaEdit = ({navigation, route}) =>{
                             placeholder='Placa' 
                             placeholderTextColor= '#CFD0D0'
                             onChangeText = { (text) => setPlaca(text) }
-                            keyboardType="numeric"
+                            keyboardType="text"
                             value = {placa}
+                            autoCapitalize="characters"
+                        />
+                    </View>
+
+                    <View style={styles.containerSection}>
+                        <Text style={styles.textStyle}>Codigo Usuario:</Text>
+                        <TextInput 
+                            style = {styles.input} 
+                            placeholder='Codigo Usuario' 
+                            placeholderTextColor= '#CFD0D0'
+                            onChangeText = { (text) => setCodigo(text) }
+                            keyboardType="numeric"
+                            value = {codigo}
                         />
                     </View>
 

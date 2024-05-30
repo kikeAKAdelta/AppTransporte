@@ -230,7 +230,7 @@ export const SolicitudCapa = ({navigation}) =>{
                             visibilityTime: 2000
                         })
 
-                        navigation.navigate('Listado Solicitud', {navigation})
+                        navigation.navigate('Solicitudes', {navigation})
 
                     },
                     error =>{

@@ -136,8 +136,7 @@ export const LoginApp = ({navigation}) =>{
                             })
 
                             console.log(error);
-                        })
-                        ;
+                        });
                         
                     }else{
 

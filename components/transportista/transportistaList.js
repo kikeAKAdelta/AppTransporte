@@ -98,8 +98,8 @@ export const TransportistaList = ({navigation, route}) =>{
 
             transportista.push(codigoUsuario);
             transportista.push(nombre);
-            transportista.push(dui);
             transportista.push(placa);
+            transportista.push([dui, idTransportista]);
 
             transportistas.push(transportista);
             transportista = [];
